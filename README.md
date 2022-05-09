@@ -18,7 +18,7 @@ Very work in progress. You are probably better off looking at these alternate re
   - Non-Rust errors
   - Testing
   - no-std environments
-* Error design
+* [Error design](error-design/README.md)
   - Thinking about errors
   - Error handling
   - Error type design
