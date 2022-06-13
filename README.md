@@ -19,7 +19,7 @@ Very work in progress. You are probably better off looking at these alternate re
   - Testing
   - no-std environments
 * [Error design](error-design/README.md)
-  - Thinking about errors
+  - [Thinking about errors](error-design/thinking-about-errors.md)
   - Error handling
   - Error type design
 * Rust's ecosystem
