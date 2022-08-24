@@ -25,6 +25,8 @@ fn foo(r: Result<i32, MyError>) -> Result<String, MyError> {
 }
 ```
 
+### The `?` operator
+
 There is also the `?` operator; this is extremely common in Rust code and often the most ergonomic way to work with `Result`s. Applying `?` to a result will either unwrap the payload, if the result is `Ok`, or immediately return the error if it is `Err`. E.g.,
 
 ```
@@ -49,6 +51,22 @@ fn foo(r: Result<i32, Error1>) -> Result<String, Error2> {
 
 This implicit conversion is relied on with several patterns of error handling we'll see in later chapters.
 
+### Try blocks
+
+Try blocks are an unstable language feature (`#![feature(try_blocks)]`). The syntax is `try { ... }` where the block may contain the same as any other block and behaves similarly. Usually you assign the result of the block into a variable, e.g., `let ... = try { ... };`. The difference compared to a regular block, is that a try block introduces a scope for the question mark operator. If you use `?` inside a try block, it will propagate the error to the result of the block immediately, rather than returning the error from the current function.
+
+For example,
+
+```rust
+let result: Result<i32, ParseIntError> = try {
+    "1".parse::<i32>()?
+        + "foo".parse::<i32>()?
+        + "3".parse::<i32>()?
+};
+```
+
+At runtime, execution will stop after the second `parse` call and the value of `result` will be the error from that call.
+
 ## `Option`
 
 `Option` is similar to `Result` in that it is a very common, two-variant enum type with a payload type (`Some`, c.f., `Ok`). The difference is that `Option::None` (c.f., `Result::Err`) does not carry a payload. It is, therefore, structurally equivalent (theoretically, not necessarily at runtime) to `Result<T, ()>` and there are many methods for converting between `Option` and `Result`. `?` works with `Option` just like `Result`.
@@ -57,14 +75,35 @@ The intended semantics of the types, however, are different. `Result` represents
 
 ## The `Error` trait
 
-TODO
+The error trait, [`std::error::Error`](https://doc.rust-lang.org/nightly/std/error/trait.Error.html), is a trait that all errors can implement. There is not a hard requirement, you can use a type in a `Result` and with `?` without implementing `Error`. It has some useful functionality, and it means you can use dynamic error handling using with `dyn Error` types. Generally you *should* implement `Error` for your error types (there are no required methods, so doing so is easy); most error libraries will do this for you.
 
-  backtraces (`Backtrace` trait), source
-  dyn vs concrete errors, downcasting (lifetimes in error types)
+### Provided functionality
+
+`Display` is a super-trait of `Error` which means that you can always convert an error into a user-facing string. Most error libraries let you derive the `Display` impl using an attribute and a custom format string.
+
+The `Error` trait has a mechanism for attaching and retrieving arbitrary data to/from errors. This mechanism is type-driven in that you provide and request data based on its type. A common usage of this mechanism is for backtraces. A backtrace is a record of the call stack when an error occurs. It has type [`Backtrace`](https://doc.rust-lang.org/nightly/std/backtrace/struct.Backtrace.html) which has various methods for iterating over the backtrace and capturing the backtrace when an error occurs. To get a backtrace, use the `Error::request_ref` method, e.g., `if let Some(trace) = err.request_ref::<Backtrace>() { ... }` (there is also a `request_value` method for requesting objects by value, but note that these must also be provided by value).
+
+For an error to support backtraces, it must capture a backtrace when the error occurs and store it as a field. The error must then override the `Error::provide` method to provide the backtrace if it is requested. For more details on this mechanism see the [docs](https://doc.rust-lang.org/nightly/std/any/index.html#provider-and-demand) of the `Provider` trait which is used behind the scenes to implement this mechanism. (Note that there used to be a specific method for getting a backtrace from an error and this has been replaced by the generic mechanism described here).
+
+`Error::source` is a way to access a lower-level cause of an error. For example if your error type is an enum `MyError` with a variant `Io(std::io::Error)`, then you could implement `source` to return the nested `io::Error`. With deep nesting, you can imagine a chain of these source errors, and `Error` provides a `chain` method[^1] to get an iterator over this chain of source errors.
+
+[^1]: This and some other methods are implemented on `dyn Error`, rather than in the trait itself. That makes these methods usable on trait objects (which wouldn't be possible otherwise due to generics, etc.), but means they are *only* usable on trait objects. That reflects the expected use of these methods with the dynamic style of error handling.
+
+### Dynamic error handling
+
+When using `Result` you can specify the concrete error type, or you can use a trait object, e.g., `Result<T, Box<dyn Error>>`. We'll talk about the procs and cons of these approaches in later chapters on designing error handling, for now we'll just explain how it works.
+
+To make this work, you simply need to implement `Error` for your concrete error types, and ensure they don't have any borrowed data (i.e., they have a `'static` bound). For ease of use, you'll want to provide a constructor which returns the abstract type (e.g., `Box<dyn Error>`) rather than the concrete type. Creating and propagating errors works the same way as using concrete error types.
+
+Handling errors might be possible using the abstract type only (using the `Display` impl, `source` and `chain` methods, and any other context), or you can downcast the error trait object to a concrete type (using one of the `downcast` methods). Usually, there are many possibilities the concrete type of the error, you can either try downcasting to each possible type (the methods return `Option` or `Result` which facilitates this) or use the `is` method to test for the concrete type. This technique is an alternative to the common `match` destructuring of concrete errors.
+
+### Evolution of the `Error` trait
+
+Error handling in general, and the `Error` trait in particular, have been evolving for a long time and are still in flux. Much of what is described above is nightly only and many unstable features have changed, and several stable ones deprecated. If you're targetting stable Rust, it is best to mostly avoid using the `Error` trait and the dynamic style of error handling (at least, using the `Error` trait rather than an ecosystem alternative like Anyhow). You should still implement `Error` though, since the trait itself is stable and this facilitates users of your code to choose the dynamic path if they want. You should also be conscious reading docs/StackOverflow/blog posts, that things may have changed.
 
 ## The `Try` trait
 
-TODO and non-Result error handling
+The `?` operator and try blocks, and their semantics are not hard-wired to `Result` and `Option`. They are tied to the [`Try`](https://doc.rust-lang.org/nightly/std/ops/trait.Try.html) trait, which means they can work with any type, including a custom alternative to `Result`. We don't recommend using your own custom `Result`, we have in fact never found a good use case (even when implementing an error handling library or in other advanced cases) and it will make your code much less compatible with the ecosystem. Probably, the reason you might want to implement the `Try` trait is for non-error related types which you want to support ergonomic short-circuiting behaviour using `?` (e.g., `Poll`; although because of the implied semantics of error handling around `?`, this might also be a bad idea). Anyway, it's a kinda complex trait and we're not going to dive into it here, see the docs if you're interested.
 
 ## Deprecated stuff
 

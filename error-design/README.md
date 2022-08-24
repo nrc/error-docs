@@ -10,6 +10,13 @@ How should you handle errors in your program? This chapter aims to answer that q
 
 [TODO](TODO)
 
+small vs medium vs large projects
+abstraction
+    libs vs apps
+recovery
+    reporting is recovery
+separate out reporting/formatting from propagation
+
 ## Error type design
 
-[TODO](TODO)
+[error-type-design.md](error-type-design.md)
