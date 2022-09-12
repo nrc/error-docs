@@ -4,6 +4,8 @@ Error handling is an important part of programming. It is essential that your pr
 
 Rust has two ways to represent errors: the `Result` type and by panicking. The `Result` type is a regular enum with `Ok` and `Err` variants. The former signalling normal program behaviour, and the latter signalling an error. Both variants contain regular Rust values and the programmer can freely choose the types of both. Panicking is a special mechanism for immediately stopping progress. It is triggered by macros like `panic!` and functions like `unwrap`. It can also be triggered implicitly, e.g., when arithmetic overflows. Panicking is usually not handled by the programmer and terminates the current thread.
 
+TODO I wonder if these chapters are too abstract? Should it have a more practical guide to throwing and recovering from errors?
+
 ## Result and Error
 
 [result-and-error.md](result-and-error.md)

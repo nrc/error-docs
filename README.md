@@ -17,6 +17,4 @@ Very work in progress.
   - Error handling
   - [Error type design](error-design/error-type-design.md)
 * [Rust's ecosystem](ecosystem.md)
-  - Good crates
-  - Historic crates
 * [Resources](resources.md)
