@@ -8,16 +8,7 @@ How should you handle errors in your program? This chapter aims to answer that q
 
 ## Error handling
 
-[TODO](TODO)
-
-small vs medium vs large projects
-abstraction
-    libs vs apps
-logging
-recovery
-    reporting is recovery
-    where to recover
-separate out reporting/formatting from propagation
+[error-handling.md](error-handling.md)
 
 ## Error type design
 
