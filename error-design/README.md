@@ -8,8 +8,19 @@ How should you handle errors in your program? This chapter aims to answer that q
 
 ## Error handling
 
+TODO relate the sections from thinking about errors to concrete advice in the next sections
+
 [error-handling.md](error-handling.md)
 
 ## Error type design
 
 [error-type-design.md](error-type-design.md)
+
+## Case studies
+
+TODO
+
+* compiler/parser errors
+* a prototype library
+* a library with network client or something
+* a CLI app

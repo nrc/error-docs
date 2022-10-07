@@ -20,4 +20,10 @@ Covers panicking, the panic macros, and panicking functions.
 
 ## Non-Rust errors
 
+[interop.md](interop.md)
+
+How to deal with errors which originate outside of Rust, primarily when interoperating with other languages.
+
 ## Testing
+
+[testing.md](testing.md)
