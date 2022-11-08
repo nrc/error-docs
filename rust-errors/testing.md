@@ -98,3 +98,7 @@ For more sophisticated mocking, there are several mocking libraries available. [
 For applications with sophisticated error reporting (e.g., a compiler), you'll want to test that error reporting output, ensuring that the messages which are expected and other data such as the input which caused the error, information to locate that input, error numbers, etc.
 
 How to test this will vary by application, you might be able to unit test the output or you might prefer to use integration tests. You'll want to implement some kind of framework to help these tests so that you're not doing loads of repetetive string comparisons. It's important not to test too much or your test suite will be fragile. An example of such tests are rustc's [UI tests](https://rustc-dev-guide.rust-lang.org/tests/ui.html).
+
+## Benchmarking
+
+If errors can occur in real life, then you should probably consider errors when benchmarking. You might want to separately benchmark what happens in the pure success and the error cases. You might also want a benchmark where errors occur randomly with realistic (or greater than realistic) frequency. This will require some engineering which is similar to mocking, but does the real thing in some cases and mocks an error occasionally.

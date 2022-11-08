@@ -18,12 +18,23 @@ Crashing may be a kind of recovery (if just a thread crashes and the program con
 
 Your project needs an error handling strategy. I consider this an architectural issue and should be decided in the early stages of planning, since it affects the API and implementation designs and can be difficult to change later in development.
 
-Your strategy should include expectations for robustness (for example, how high priority is it that errors do not surface to the user? Should correctness, performance, or robustness be prioritised? What situations can we assume will never happen?), assumptions about the environment in which the code will run (in particular can errors/crashes be handled externally), requirements for logging, telemetry, or other reporting, *who* should handle errors (e.g., for a library, which kinds of error should be handled internally and which should the client handle), and how error/recovery states will be tested.
+Your strategy should include expectations for robustness (for example, how high priority is it that errors do not surface to the user? Should correctness, performance, or robustness be prioritised? What situations can we assume will never happen?), assumptions about the environment in which the code will run (in particular can errors/crashes be handled externally? Is the program run in a container or VM, or otherwise supervised? Can we tolerate restarting the program? How often?), do errors need to be propagated or reported to other components of the system? Requirements for logging, telemetry, or other reporting, *who* should handle errors (e.g., for a library, which kinds of error should be handled internally and which should the client handle), and how error/recovery states will be tested.
 
 Whether your project is a library or an application, and if an application whether it stands alone or is a component in a larger system, will have a huge affect on your error handling strategy. Most obviously, if you are a stand-alone application then there is nobody else to handle errors! In an application you will have more certainty about the requirements of the system, whereas for a library you will likely need to provide for more flexibility.
 
-Having identified the requirements of your strategy, this will inform how you represent errors as types (discussed in the [next chapter](error-type-design.md)), where and how you will recover from errors, and the information your error types must carry (discussed in the following sections).
+Having identified the requirements of your strategy, this will inform how you represent errors as types (discussed below and in the [next chapter](error-type-design.md)), where and how you will recover from errors, and the information your error types must carry (discussed in the following sections).
 
+## Result or panic?
+
+Most programs should use `Result` for most of their error handling.
+
+You might think that for a very quick prototype or script, you don't need error handling and unwrapping and panicking is fine. However, using `?` is usually more ergonomic than `unwrap` and these tiny programs have a habit of growing into larger ones, and converting panicking code into code with proper error handling is a huge chore. Much better to have a very simple error type (even just a string); changing the error type is much easier.
+
+You should probably use panics to surface bugs, i.e., in situations which should be impossible. This is easier said than done. For example, consider an integer arithmetic overflow. This might be impossible, but it might also be possible given enough time or the right combination of user input. So even classes of error which usually cause panics are likely only to be best represented as a panic in some circumstances.
+
+When designing an API, either public or private, it is generally better for a function to return a `Result` and let the caller decide to panic or not, rather than always panic on an error. It is very easy to convert a `Result` into an `Error` but the reverse is more difficult and loses information.
+
+For how to design the error types carried by `Result`, see the [next chapter](error-type-design.md).
 
 ## Recovery
 

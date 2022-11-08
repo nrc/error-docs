@@ -8,9 +8,6 @@ How should you handle errors in your program? This chapter aims to answer that q
 
 ## Error handling
 
-TODO panic vs result
-TODO relate the sections from thinking about errors to concrete advice in the next sections
-
 [error-handling.md](error-handling.md)
 
 ## Error type design
