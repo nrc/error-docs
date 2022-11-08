@@ -12,7 +12,7 @@ When a panic occurs, a *panic hook* function is called. By default, this prints 
 
 In a no-std crate, you'll need to set your own panic handler. Use the [`#[panic_handler]`](https://doc.rust-lang.org/nomicon/panic-handler.html) attribute and see the docs for [`core::panicking`](https://doc.rust-lang.org/nightly/core/panicking/index.html) for more info.
 
-For more details on how panicking is implemented, see this [blog post](https://www.ralfj.de/blog/2019/11/25/how-to-panic-in-rust.html).
+For more details on how panicking is implemented, see this [blog post](https://www.ralfj.de/blog/2019/11/25/how-to-panic-in-rust.html); for more on if and when you should panic (particularly using `unwrap` see [this one](https://blog.burntsushi.net/unwrap/).
 
 ## Triggering panics
 

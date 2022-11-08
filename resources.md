@@ -6,5 +6,5 @@
 
 ## Blog posts
 
-* [BurntSushi's blog post](https://blog.burntsushi.net/rust-error-handling/)
+* [BurntSushi's blog post](https://blog.burntsushi.net/rust-error-handling/) and specifically on [using unwrap](https://blog.burntsushi.net/unwrap/).
 * [Context-preserving error handling](https://kazlauskas.me/entries/errors) blog post
