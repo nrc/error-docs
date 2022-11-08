@@ -1,0 +1,8 @@
+[book]
+title = "Error Handling in Rust"
+authors = ["Nick Cameron"]
+src = "."
+language = "en"
+
+[rust]
+edition = "2021"
