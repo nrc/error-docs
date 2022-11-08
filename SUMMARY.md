@@ -1,5 +1,7 @@
 # Summary
 
+[Introduction](intro.md)
+
 - [Rust errors](rust-errors/README.md)
   - [Result and Error](rust-errors/result-and-error.md)
   - [Panic](rust-errors/panic.md)

@@ -15,10 +15,3 @@ How should you handle errors in your program? This chapter aims to answer that q
 [error-type-design.md](error-type-design.md)
 
 ## Case studies
-
-TODO
-
-* compiler/parser errors
-* a prototype library
-* a library with network client or something
-* a CLI app

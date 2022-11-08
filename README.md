@@ -1,18 +1,19 @@
 # nrc's error docs
 
-A guide to error handling in Rust. The first half introduces Rust's language features and libraries for error handling. The second half should help you make *good* error handling code in your Rust programs.
+Read the [rendered book](https://nrc.github.io/error-docs).
 
-# Contents
+To read, start at the [introduction](intro.md) or see the contents in [SUMMARY.md](SUMMARY.md).
 
-* [Rust errors](rust-errors/README.md)
-  - [Result and Error](rust-errors/result-and-error.md)
-  - [Panic](rust-errors/panic.md)
-  - [Non-Rust errors and FFI](rust-errors/interop.md)
-  - [Testing](rust-errors/testing.md)
-* [Rust's ecosystem](ecosystem.md)
-* [Error design](error-design/README.md)
-  - [Thinking about errors](error-design/thinking-about-errors.md)
-  - [Error handling](error-design/error-handling.md)
-  - [Error type design](error-design/error-type-design.md)
-  - Case studies
-* [Resources](resources.md)
+## Building
+
+You'll need to install [mdbook](https://rust-lang.github.io/mdBook/), the easiest way is `cargo install mdbook`.
+
+Then, `mdbook build` to build and `mdbook serve` to serve up a local copy.
+
+## Contributing
+
+Contributions are welcome!
+
+If you notice an error (lol) or think something could be improved, please open an [issue](https://github.com/nrc/error-docs/issues/new) or PR.
+
+These docs are licensed under CC-BY-4.0.
