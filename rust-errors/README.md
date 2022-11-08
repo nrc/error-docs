@@ -10,26 +10,22 @@ Panicking is a special mechanism for 'immediately' stopping progress in a contro
 
 The facilities for errors in the language and standard library are incomplete. There are several crates which can help with error handling and you'll probably want to use one.
 
-## Result and Error
+## [Result and Error](result-and-error.md)
 
-[result-and-error.md](result-and-error.md)
 
 Covers the `Result` type and using it for error handling, the `?` operator, the `Error` trait, the `Try` trait, and other parts of Rust's machinery for handling errors as values.
 
-## Panic
+## [Panic](panic.md)
 
-[panic.md](panic.md)
 
 Covers panicking, the panic macros, and panicking functions.
 
-## Non-Rust errors
+## [Non-Rust errors](interop.md)
 
-[interop.md](interop.md)
 
 How to deal with errors which originate outside of Rust, primarily when interoperating with other languages.
 
-## Testing
+## [Testing](testing.md)
 
-[testing.md](testing.md)
 
 How to test code which uses `Result` or panics.
