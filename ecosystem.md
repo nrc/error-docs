@@ -10,7 +10,7 @@ A powerful `derive(Error)` [macro](https://github.com/dtolnay/thiserror). Implem
 
 ### Anyhow
 
-A [crate](https://github.com/dtolnay/anyhow) for working with trait object error types. Extends the features of the standard library's `Error` trait. However, most of Anyhow's features have been added to std, so you might not need Anyhow any more (it does have the advantage that it doesn't require unstable features, so can be used with a stable toolchain).
+A [crate](https://github.com/dtolnay/anyhow) for working with trait object error types. Extends the features of the standard library's `Error` trait. However, most of Anyhow's features have been added to std, so you might not need Anyhow anymore (it does have the advantage that it doesn't require unstable features, so can be used with a stable toolchain).
 
 ### Snafu
 
@@ -28,7 +28,7 @@ These crates are for reporting errors to the user in pretty ways. They are parti
 
 ## Historic crates
 
-As Rust's error handling story has evolved, many error handling libraries have come and gone. The following were influential in their time, but there are now better alternatives (sometimes including just the support in std). You might still see these crates used in historic documentation, but we wouldn't recommend using them any more.
+As Rust's error handling story has evolved, many error handling libraries have come and gone. The following were influential in their time, but there are now better alternatives (sometimes including just the support in std). You might still see these crates used in historic documentation, but we wouldn't recommend using them anymore.
 
 * [error-chain](https://github.com/rust-lang-deprecated/error-chain) (support is now in std)
 * [failure](https://github.com/rust-lang-deprecated/failure) (support is now in std)

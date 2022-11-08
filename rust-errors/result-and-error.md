@@ -2,7 +2,7 @@
 
 Using a `Result` is the primary way of handling errors in Rust. A `Result` is a generic enum in the standard library, it has two variants: `Ok` and `Err`, which indicate correct execution and incorrect execution, respectively. Both `Result` and its two variants are in the prelude, so you don't need to explicitly import them and you don't have to write `Result::Ok` as you would for most enums.
 
-Both variants take a single argument which can be any type. You'll usually see `Result<T, E>` where `T` is the type of value returned in `Ok` and `E` is the error type returned in `Err`. It's fairly common for modules to use a single error type for the whole module and to define an alias like `pub type Result<T> = std::result::Result<T, MyError>;`. In that case you'll see `Result<T>` as the type, where `MyError` is an implicit error type.
+Both variants take a single argument which can be any type. You'll usually see `Result<T, E>` where `T` is the type of value returned in `Ok` and `E` is the error type returned in `Err`. It's fairly common for modules to use a single error type for the whole module and to define an alias like `pub type Result<T> = std::result::Result<T, MyError>;`. In that case, you'll see `Result<T>` as the type, where `MyError` is an implicit error type.
 
 Creating a `Result` value is as simple as using the variant as a constructor, just like other enums. E.g, for a `Result<i32, i32>` (a `Result` with an `i32` payload and an `i32` error code), you would use `Ok(42)` and `Err(2)` to create `Result` values.
 
@@ -40,7 +40,7 @@ The above code does the same as the previous example. In this case, the `map` co
 
 The `?` operator can be used with other types too, notably `Option`. You can also use it with your own types, see the discussion of the `Try` trait, below.
 
-`?` does not have to just return the error type directly. It can oncvert the error type into another by calling `Into::into`. So if you have two error types: `Error1` and `Error2` and `Error1` implements `Into<Error2>`, then the following will work (note the different error types in the signature):
+`?` does not have to just return the error type directly. It can convert the error type into another by calling `Into::into`. So if you have two error types: `Error1` and `Error2` and `Error1` implements `Into<Error2>`, then the following will work (note the different error types in the signature):
 
 ```
 fn foo(r: Result<i32, Error1>) -> Result<String, Error2> {
@@ -71,11 +71,11 @@ At runtime, execution will stop after the second `parse` call and the value of `
 
 `Option` is similar to `Result` in that it is a very common, two-variant enum type with a payload type (`Some`, c.f., `Ok`). The difference is that `Option::None` (c.f., `Result::Err`) does not carry a payload. It is, therefore, analogous to `Result<T, ()>` and there are many methods for converting between `Option` and `Result`. `?` works with `Option` just like `Result`.
 
-The intended meaning of the types, however, is different. `Result` represents a value which has either been correctly computer or where an error occurred in its computation. `Option` represents a value which may or may not be present. Generally, `Option` should not be used for error handling. You may use or come across types like `Result<Option<i32>, MyError>`, this type might be returned where the computation is fallible, and if succeeds it will return either an `i32` or nothing (but importantly, returning nothing is not an error).
+The intended meaning of the types, however, is different. `Result` represents a value that has either been correctly computed or where an error occurred in its computation. `Option` represents a value that may or may not be present. Generally, `Option` should not be used for error handling. You may use or come across types like `Result<Option<i32>, MyError>`, this type might be returned where the computation is fallible, and if succeeds it will return either an `i32` or nothing (but importantly, returning nothing is not an error).
 
 ## The `Error` trait
 
-The error trait, [`std::error::Error`](https://doc.rust-lang.org/nightly/std/error/trait.Error.html), is a trait for error types. There is no hard requirement, you can use a type in a `Result` and with `?` without implementing `Error`. It has some useful functionality, and it means you can use dynamic error handling using `dyn Error` types. Generally you *should* implement `Error` for your error types (there are no required methods, so doing so is easy); most error libraries will do this for you.
+The error trait, [`std::error::Error`](https://doc.rust-lang.org/nightly/std/error/trait.Error.html), is a trait for error types. There is no hard requirement, you can use a type in a `Result` and with `?` without implementing `Error`. It has some useful functionality, and it means you can use dynamic error handling using `dyn Error` types. Generally, you *should* implement `Error` for your error types (there are no required methods, so doing so is easy); most error libraries will do this for you.
 
 ### Provided functionality
 
@@ -87,15 +87,15 @@ A common usage of this mechanism is for backtraces. A backtrace is a record of t
 
 For an error to support backtraces, it must capture a backtrace when the error occurs and store it as a field. The error must then override the `Error::provide` method to provide the backtrace if it is requested. For more details on this mechanism see the [docs](https://doc.rust-lang.org/nightly/std/any/index.html#provider-and-demand) of the `Provider` trait which is used behind the scenes to implement it. (Note that there used to be a specific method for getting a backtrace from an error and this has been replaced by the generic mechanism described here).
 
-`Error::source` is a way to access a lower-level cause of an error. For example if your error type is an enum `MyError` with a variant `Io(std::io::Error)`, then you could implement `source` to return the nested `io::Error`. With deep nesting, you can imagine a chain of these source errors, and `Error` provides a `chain` method[^1] to get an iterator over this chain of source errors.
+`Error::source` is a way to access a lower-level cause of an error. For example, if your error type is an enum `MyError` with a variant `Io(std::io::Error)`, then you could implement `source` to return the nested `io::Error`. With deep nesting, you can imagine a chain of these source errors, and `Error` provides a `chain` method[^1] to get an iterator over this chain of source errors.
 
 [^1]: This and some other methods are implemented on `dyn Error`, rather than in the trait itself. That makes these methods usable on trait objects (which wouldn't be possible otherwise due to generics, etc.), but means they are *only* usable on trait objects. That reflects the expected use of these methods with the dynamic style of error handling (see the following section).
 
 ### Dynamic error handling
 
-When using `Result` you can specify the concrete error type, or you can use a trait object, e.g., `Result<T, Box<dyn Error>>`. We'll talk about the pros and cons of these approaches in later chapters on designing error handling, for now we'll just explain how it works.
+When using `Result` you can specify the concrete error type, or you can use a trait object, e.g., `Result<T, Box<dyn Error>>`. We'll talk about the pros and cons of these approaches in later chapters on designing error handling, for now, we'll just explain how it works.
 
-To make this work, you implement `Error` for your concrete error types, and ensure they don't have any borrowed data (i.e., they have a `'static` bound). For ease of use, you'll want to provide a constructor which returns the abstract type (e.g., `Box<dyn Error>`) rather than the concrete type. Creating and propagating errors works the same way as using concrete error types.
+To make this work, you implement `Error` for your concrete error types and ensure they don't have any borrowed data (i.e., they have a `'static` bound). For ease of use, you'll want to provide a constructor which returns the abstract type (e.g., `Box<dyn Error>`) rather than the concrete type. Creating and propagating errors works the same way as using concrete error types.
 
 Handling errors might be possible using the abstract type only (using the `Display` impl, `source` and `chain` methods, and any other context), or you can downcast the error trait object to a concrete type (using one of the `downcast` methods). Usually, there are many possibilities for the concrete type of the error, you can either try downcasting to each possible type (the methods return `Option` or `Result` which facilitates this) or use the `is` method to test for the concrete type. This technique is an alternative to the common `match` destructuring of concrete errors.
 

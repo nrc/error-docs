@@ -1,8 +1,8 @@
 # Error type design
 
-You can use any type as an error in Rust. The `E` in `Result<T, E>` has no bounds and can be anything. At the highest level there are two choices: use a concrete error type or use a trait object (e.g., `Box<dyn Error>`). In the latter case, you'll still need concrete error types to use for values, you just won't expose them as part of your API. When designing the concrete error types, there are two common approaches: create a taxonomy of error types primarily using enums, or use a single struct which represents all the errors in a module or modules.
+You can use any type as an error in Rust. The `E` in `Result<T, E>` has no bounds and can be anything. At the highest level there are two choices: use a concrete error type or use a trait object (e.g., `Box<dyn Error>`). In the latter case, you'll still need concrete error types to use for values, you just won't expose them as part of your API. When designing the concrete error types, there are two common approaches: create a taxonomy of error types primarily using enums, or use a single struct that represents all the errors in a module or modules.
 
-There are also, some less common choices for the concrete error types. You can use an integer type which can be useful around FFI where you have an error number from C code. You should probably convert the error number into a more idiomatic error type before passing it on, but it can be a useful technique as an intermediate form between C and Rust types, or for some very specialised cases.
+There are also, some less common choices for the concrete error types. You can use an integer type which can be useful around FFI where you have an error number from C code. You should probably convert the error number into a more idiomatic error type before passing it on, but it can be a useful technique as an intermediate form between C and Rust types, or for some very specialized cases.
 
 You can also use a string error message as your error type, this is rarely suitable for production code but is useful when prototyping because converting code from one kind of error type to another is much easier than converting panicking code to using `Result`s (it also lets you use `?` which can clean up your code nicely). You'll probably want to include `type Result<T> = std::result::Result<T, &'static str>;` to make this technique more usable. Alternatively, you can use string messages as the concrete types underlying trait object error types. Anyhow provides the `anyhow!`/`bail!` macro to make this easy.
 
@@ -38,9 +38,9 @@ The advantages of this approach are:
 
 There are two ways to consider the design: by designing based on how the errors will arise or how the errors will be handled. I think the former is easier and more future-proof (how can you predict all the ways an error might be handled?).
 
-There is a lot of scope for different design decisions: how to categorise errors, how much detail to include, how to structure the errors, how to handle back/forward compatibility, etc. Concretely, how many enums should you use and how many variants? Should you nest errors? How should you name the enums and variants?
+There is a lot of scope for different design decisions: how to categorize errors, how much detail to include, how to structure the errors, how to handle back/forward compatibility, etc. Concretely, how many enums should you use, and how many variants? Should you nest errors? How should you name the enums and variants?
 
-If designing based on how errors arise, you want one enum for each class of errors and one variant for each specific kind of error (obviously, there's a lot of space here for what constitutes a class or specific kind of error). More practically, a function can only return a single error type, so all errors which can be returned from a function must belong to a single enum. Since errors can likely be returned from multiple functions, you'll end up with a set of errors returned from a set of functions which have the same error type. It is possible, but not necessary, for that set of functions to match with module boundaries. So one error type per module is sometimes OK, but I wouldn't recommend it as a general rule.
+If designing based on how errors arise, you want one enum for each class of errors and one variant for each specific kind of error (obviously, there's a lot of space here for what constitutes a class or specific kind of error). More practically, a function can only return a single error type, so all errors which can be returned from a function must belong to a single enum. Since errors can likely be returned from multiple functions, you'll end up with a set of errors returned from a set of functions that have the same error type. It is possible, but not necessary, for that set of functions to match with module boundaries. So one error type per module is sometimes OK, but I wouldn't recommend it as a general rule.
 
 Furthermore, at different levels of abstraction, the right level of detail for errors will change (we'll discuss this a bit more below). So, the right level of detail for error enums deep inside your implementation is probably different to the right level in the API.
 
@@ -99,11 +99,11 @@ pub struct MalformedRespError {
 
 ### Nested errors
 
-One thing to be aware of in this approach is nesting of errors. It is fairly common to have variants which simply contain a source error, with a simple `From` impl to convert one error to another. This is made ultra-ergonomic by the `?` operator and attributes in the error handling libraries such as thiserror. I believe this idiom is *very* overused, to the point where you should consider it an anti-pattern unless you can prove otherwise for the specific case.
+One thing to be aware of in this approach is nesting of errors. It is fairly common to have variants that simply contain a source error, with a simple `From` impl to convert one error to another. This is made ultra-ergonomic by the `?` operator and attributes in the error handling libraries such as thiserror. I believe this idiom is *very* overused, to the point where you should consider it an anti-pattern unless you can prove otherwise for the specific case.
 
 In most cases where you create an error out of another error, there is additional context that is likely to be useful when recovering or debugging. If the error is simply nested, then this extra context is missed. Sometimes, if it seems like there is no extra useful context, then it might be a signal that the source error should be a variant of the other error, rather than nested in it. Alternatively, it might be that the level of abstraction should be changed.
 
-For example, you might have a `std::io::Error` nested in your enum as `MyError::Io(std::io::Error)`. It might be that there is more context to include, such as the action, filename, or request which triggered the IO error. In this case `std::io::Error` comes from another crate, so it cannot be inlined. It might be that the level of abstraction should change, e.g., if the io error occurred when loading a config file from disk, it could be converted into a `MyError::Config(Path)`.
+For example, you might have a `std::io::Error` nested in your enum as `MyError::Io(std::io::Error)`. It might be that there is more context to include, such as the action, filename, or request which triggered the IO error. In this case, `std::io::Error` comes from another crate, so it cannot be inlined. It might be that the level of abstraction should change, e.g., if the io error occurred when loading a config file from disk, it could be converted into a `MyError::Config(Path)`.
 
 To add more context to an error, use `.map_err(|e| ...)?` rather than just `?`. To change the abstraction level, you might be able to use a custom `From` impl, or you might need to use `map_err` with an explicit conversion method.
 
@@ -153,14 +153,14 @@ pub enum ErrorKind {
 }
 ```
 
-This style is less common in the ecosystem. A prominent example is [`std::io::Error`](https://doc.rust-lang.org/nightly/std/io/struct.Error.html), note that this error type is further optimised by using a packed representation on some platforms.
+This style is less common in the ecosystem. A prominent example is [`std::io::Error`](https://doc.rust-lang.org/nightly/std/io/struct.Error.html), note that this error type is further optimized by using a packed representation on some platforms.
 
 The advantages of the single struct style are:
 
 * it scales better when there are lots of errors (there is not a linear relationship between the number of errors and the number of error types),
 * logging errors is simple,
 * catching errors with downcasting is not too bad, and familiar from the trait object approach to error handling,
-* it is easily customisable at the error site - you can add custom context without adding (or changing) an error kind,
+* it is easily customizable at the error site - you can add custom context without adding (or changing) an error kind,
 * it requires less up-front design.
 
 You have a choice about what information to include in your error struct. Some generic information you might like to include are a backtrace for the error site, an optional source error, some error code or other domain-specific way to identify the error, and/or some representation of the program state (this last one is very project-specific). If you include a source error, then you might face similar issues to those described in the previous section on error nesting.
@@ -197,14 +197,14 @@ As described in [the Result and Error section](../rust-errors/result-and-error.m
 Useful context to provide may include:
 
 * a backtrace,
-* pre-formatted messages as strings for logging or reporting to users (though not that this precludes localization or other customisation of the message),
-* error numbers or other domain-specific information.
+* pre-formatted messages as strings for logging or reporting to users (though not that this precludes localization or other customization of the message),
+* error numbers, or other domain-specific information.
 
 If using dynamic trait object errors, the errors are only useful for coarse-grained recovery, logging, or for direct reporting to users. If you want to enable fine-grained recovery, you are probably better off using concrete error types, rather than adding loads of context to error trait objects.
 
 ### Eliminating concrete error types
 
-You can't really eliminate all concrete error types; due to Rust's nature you have to have a concrete type which is abstracted into the trait object. However, you *can* avoid having to define your own concrete types in every module. While this is a reasonable approach, I think it is probably only the best approach in some very limited circumstances.
+You can't really eliminate all concrete error types; due to Rust's nature, you have to have a concrete type that is abstracted into the trait object. However, you *can* avoid having to define your own concrete types in every module. While this is a reasonable approach, I think it is probably only the best approach in some very limited circumstances.
 
 How to do this depends on how much information you need to get from the `Error` trait object. If you want to provide some additional context, you'll need somewhere to store that context or the data required to create it. Some approaches:
 
@@ -217,11 +217,11 @@ How to do this depends on how much information you need to get from the `Error` 
 
 First of all, be aware that you are not making *one* choice per project. Different modules within your project can take different approaches, and you may want to take a different approach with the errors in your API vs those in the implementation. As well as different approaches in different parts of your project, you can mix approaches in one place, e.g., using concrete errors for some functions and trait object errors for others, or using a mix of enum style and single struct style errors.
 
-Ultimately the style of error type which is best depends on what kind of error handling you'll with them (or expect your users to do with them, if you're writing a library). For error recovery at (or very close) to the error site, the error type doesn't matter much. If you are going to do fine-grained recovery at some distance from where the error is thrown (e.g., in a different module or crate), then the enum style is probably best. If you have a lot of errors in a library (and/or all errors are rather similar), or you expect the user to only do coarse-grained recovery (e.g., retry or communicate failure to the user), then the single struct style might be better. Where there can be effectively no recovery (or recovery is rare), and the intention is only to log the errors (or report the errors to a developer in some other way) then trait objects might be best.
+Ultimately the style of error type which is best depends on what kind of error handling you'll with do them (or expect your users to do with them if you're writing a library). For error recovery at (or very close) to the error site, the error type doesn't matter much. If you are going to do fine-grained recovery at some distance from where the error is thrown (e.g., in a different module or crate), then the enum style is probably best. If you have a lot of errors in a library (and/or all errors are rather similar), or you expect the user to only do coarse-grained recovery (e.g., retry or communicate failure to the user), then the single struct style might be better. Where there can be effectively no recovery (or recovery is rare), and the intention is only to log the errors (or report the errors to a developer in some other way) then trait objects might be best.
 
 Common advice is to use concrete error types for libraries (because they give the user maximum flexibility) and trait object errors in applications (for simplicity). However, I think this is an over-simplification. The advice for libraries is good unless you are sure the user won't want to recover from errors (and note that recovery is possible using downcasting, it's just easier if there is more information). For applications, it might make sense to use concrete types to make recovery easier. For many applications, you're more likely to be able to recover from locally produced errors rather than those from upstream libraries. Being closer to the user also makes interactive recovery easier.
 
-For large, sophisticated applications, you probably want to use the enum style of concrete error, since this permits localisation (and other customisation) of error messages and helps with the modularity of APIs.
+For large, sophisticated applications, you probably want to use the enum style of concrete error, since this permits localisation (and other customization) of error messages and helps with the modularity of APIs.
 
 
 ## General advice
@@ -232,7 +232,7 @@ Avoid over-using `Error` in names, it is easy to end up with it repeating endles
 
 It is fine to overload the standard library names like `Result` and `Error`, you can always use an explicit prefix to name the std ones, but you'll rarely need to.
 
-Avoid having and `errors` module in your crate. Keep your errors in the module they serve and consider having different errors in different modules. Using an `errors` module encourages thinking of errors as a per-project thing, rather than tailoring their level of detail to what is most appropriate.
+Avoid having an `errors` module in your crate. Keep your errors in the module they serve and consider having different errors in different modules. Using an `errors` module encourages thinking of errors as a per-project thing, rather than tailoring their level of detail to what is most appropriate.
 
 ### Stability
 
@@ -242,8 +242,8 @@ For error enums, you probably should mark all your enums as `#[non_exhaustive]` 
 
 ### Converting errors at API boundaries
 
-It often makes sense to have different error types in your API to those in the implementation. That means that the latter must be converted to the former at API boundaries. Fortunately, this is usually ergonomic in Rust due to the implicit conversion in the `?` operator. You'll just need to implement the `From` trait for the types used in the API (or `Into` for the concrete types, if that is not possible).
+It often makes sense to have different error types in your API to those in the implementation. That means that the latter must be converted to the former at API boundaries. Fortunately, this is usually ergonomic in Rust due to the implicit conversion in the `?` operator. You'll just need to implement the `From` trait for the types used in the API (or `Into` for the concrete types if that is not possible).
 
 If you'll be converting error types at boundaries, you'll be converting to a more abstract (or at least less detailed) representation. That might mean converting to a trait object, or it might be a more suitable set of concrete types. If you're using trait objects internally, you probably don't need to convert, although you might change the trait used. As discussed above, you should choose the types most appropriate to your API. In particular, you should consider what kind of error recovery is possible (or reasonable) outside an abstraction boundary.
 
-Should you use the internal error as a 'source' error of the API error? Probably not, after all the internal error is part of your internals and not the API be definition and therefore you probably don't want to expose it. If the expectation is that the only kind of error handling that will be done is to log the errors for debugging or crash reporting, etc. then it might make sense to include the source error. In this case, you should document that the source error is not part of the stable API and should not be used for error handling or relied upon (be prepared for users to rely on it anyway).
+Should you use the internal error as a 'source' error of the API error? Probably not, after all the internal error is part of your internals and not the API definition and therefore you probably don't want to expose it. If the expectation is that the only kind of error handling that will be done is to log the errors for debugging or crash reporting, etc. then it might make sense to include the source error. In this case, you should document that the source error is not part of the stable API and should not be used for error handling or relied upon (be prepared for users to rely on it anyway).
