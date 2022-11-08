@@ -1,6 +1,6 @@
 # Error handling
 
-This chapter will discuss what to actually do with your errors. 
+This chapter will discuss what to actually do with your errors.
 
 When your code encounters an error, you have a few choices:
 
@@ -10,7 +10,7 @@ When your code encounters an error, you have a few choices:
 
 Recovery is the most interesting option and most of this section will be spent on this. If you don't recover, then you'll probably propagate the error. This is pretty straightforward, the only choice is whether to convert the error into a different one or propagate it as is. We'll discuss this more in the following chapter on error types.
 
-Crashing can mean panicking the thread or aborting the process. The former might cause the latter, but that doesn't usually matter. Whether you abort or panic depends on the architecture of your program and the severity of the error. If the program is designed to cope with panicking threads, and the blast radius of the error is limited to a single thread, than panicking is viable and probably the better option. If your program cannot handle threads panicking, or if the error means that multiple threads will be in an inconsistent state, then aborting is probably better.
+Crashing can mean panicking the thread or aborting the process. The former might cause the latter, but that doesn't usually matter. Whether you abort or panic depends on the architecture of your program and the severity of the error. If the program is designed to cope with panicking threads, and the blast radius of the error is limited to a single thread, then panicking is viable and probably the better option. If your program cannot handle threads panicking, or if the error means that multiple threads will be in an inconsistent state, then aborting is probably better.
 
 Crashing may be a kind of recovery (if just a thread crashes and the program continues, or if the program runs in an environment where crashing is expected and the program can be restarted), but usually it is the least desirable response to an error. Even for prototype programs, you are probably better to propagate errors to the top level rather than crashing, since it is easier to convert that to a proper error handling system (and prototypes turn into production code more often than anyone would like).
 
@@ -20,7 +20,7 @@ Your project needs an error handling strategy. I consider this an architectural 
 
 Your strategy should include expectations for robustness (for example, how high priority is it that errors do not surface to the user? Should correctness, performance, or robustness be prioritised? What situations can we assume will never happen?), assumptions about the environment in which the code will run (in particular can errors/crashes be handled externally? Is the program run in a container or VM, or otherwise supervised? Can we tolerate restarting the program? How often?), do errors need to be propagated or reported to other components of the system? Requirements for logging, telemetry, or other reporting, *who* should handle errors (e.g., for a library, which kinds of error should be handled internally and which should the client handle), and how error/recovery states will be tested.
 
-Whether your project is a library or an application, and if an application whether it stands alone or is a component in a larger system, will have a huge affect on your error handling strategy. Most obviously, if you are a stand-alone application then there is nobody else to handle errors! In an application you will have more certainty about the requirements of the system, whereas for a library you will likely need to provide for more flexibility.
+Whether your project is a library or an application, and if an application whether it stands alone or is a component in a larger system, will have a huge effect on your error handling strategy. Most obviously, if you are a stand-alone application then there is nobody else to handle errors! In an application you will have more certainty about the requirements of the system, whereas for a library you will likely need to provide for more flexibility.
 
 Having identified the requirements of your strategy, this will inform how you represent errors as types (discussed below and in the [next chapter](error-type-design.md)), where and how you will recover from errors, and the information your error types must carry (discussed in the following sections).
 
@@ -28,7 +28,7 @@ Having identified the requirements of your strategy, this will inform how you re
 
 Most programs should use `Result` for most of their error handling.
 
-You might think that for a very quick prototype or script, you don't need error handling and unwrapping and panicking is fine. However, using `?` is usually more ergonomic than `unwrap` and these tiny programs have a habit of growing into larger ones, and converting panicking code into code with proper error handling is a huge chore. Much better to have a very simple error type (even just a string); changing the error type is much easier.
+You might think that for a very quick prototype or script, you don't need error handling and unwrapping and panicking are fine. However, using `?` is usually more ergonomic than `unwrap` and these tiny programs have a habit of growing into larger ones, and converting panicking code into code with proper error handling is a huge chore. Much better to have a very simple error type (even just a string); changing the error type is much easier.
 
 You should probably use panics to surface bugs, i.e., in situations which should be impossible. This is easier said than done. For example, consider an integer arithmetic overflow. This might be impossible, but it might also be possible given enough time or the right combination of user input. So even classes of error which usually cause panics are likely only to be best represented as a panic in some circumstances.
 

@@ -12,7 +12,7 @@ A basic Rust unit test fails if the function panics and passes if it does not. S
 
 ## Testing the kind of errors
 
-To properly test your program, you should test the errors which your functions throw. Exactly what to test is an interesting question: for internal functions you should test what is needed, this might mean just that any error is thrown (for certain inputs). If you rely on certain errors being thrown (e.g., for recovery) then you should test that a specific error is thrown or that the error contains correct information. Likewise, for testing public function, you should test what your API guarantees (do you guarantee certain error types under some circumstances? Or only that *an* error is thrown?). 
+To properly test your program, you should test the errors which your functions throw. Exactly what to test is an interesting question: for internal functions you should test what is needed, this might mean just that any error is thrown (for certain inputs). If you rely on certain errors being thrown (e.g., for recovery) then you should test that a specific error is thrown or that the error contains correct information. Likewise, for testing public functions, you should test what your API guarantees (do you guarantee certain error types under some circumstances? Or only that *an* error is thrown?).
 
 To require that a test panics, you can use the `#[should_panic]` attribute. You can use an `expected` parameter to test for a particular message when panicking, e.g., `#[should_panic(expected = "internal compiler error")]`.
 
@@ -90,14 +90,14 @@ mod test {
 }
 ```
 
-For more sophisticated mocking, there are several mocking libraries available. [Mockall](TODO) is the most popular. These can save a lot of boilerplate, especially when you need mock objects to do more than always return a single error.
+For more sophisticated mocking, there are several mocking libraries available. [Mockall](https://docs.rs/mockall/latest/mockall/) is the most popular. These can save a lot of boilerplate, especially when you need mock objects to do more than always return a single error.
 
 
 ## Testing error reporting
 
 For applications with sophisticated error reporting (e.g., a compiler), you'll want to test that error reporting output, ensuring that the messages which are expected and other data such as the input which caused the error, information to locate that input, error numbers, etc.
 
-How to test this will vary by application, you might be able to unit test the output or you might prefer to use integration tests. You'll want to implement some kind of framework to help these tests so that you're not doing loads of repetetive string comparisons. It's important not to test too much or your test suite will be fragile. An example of such tests are rustc's [UI tests](https://rustc-dev-guide.rust-lang.org/tests/ui.html).
+How to test this will vary by application, you might be able to unit test the output or you might prefer to use integration tests. You'll want to implement some kind of framework to help these tests so that you're not doing loads of repetitive string comparisons. It's important not to test too much or your test suite will be fragile. An example of such tests are rustc's [UI tests](https://rustc-dev-guide.rust-lang.org/tests/ui.html).
 
 ## Benchmarking
 
