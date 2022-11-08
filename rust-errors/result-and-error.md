@@ -40,7 +40,7 @@ The above code does the same as the previous example. In this case, the `map` co
 
 The `?` operator can be used with other types too, notably `Option`. You can also use it with your own types, see the discussion of the `Try` trait, below.
 
-`?` does not have to just return the error type directly. It can oncvert the error type into another by calling `Into::into`. So if you have two error types: `Error1` and `Error2` and `Error1` implements `Into<Error2>`, then the following will work (note the different error types in the signature):
+`?` does not have to just return the error type directly. It can convert the error type into another by calling `From::from`. So if you have two error types: `Error1` and `Error2` and `Error2` implements `From<Error1>`, then the following will work (note the different error types in the signature):
 
 ```
 fn foo(r: Result<i32, Error1>) -> Result<String, Error2> {
