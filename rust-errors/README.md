@@ -4,7 +4,7 @@ Error handling gets special treatment in the language because when reading and w
 
 Rust has two ways to represent errors: using the `Result` type and by panicking. The former is much more common and usually preferred.
 
-The `Result` type is a regular enum with `Ok(T)` and `Err(T)` variants. The former signalling normal program behaviour, and the latter signalling an error. Both variants contain regular Rust values and the programmer can freely choose the types for both. There is essentially no special mechanism here. A function returns just a regular value which can indicate either success or an error; the callers of a function must check which. Propagating an error simply means returning an error when an error is found. Rust does provide some special constructs to make this easy.
+The `Result` type is a regular enum with `Ok(T)` and `Err(E)` variants. The former signalling normal program behaviour, and the latter signalling an error. Both variants contain regular Rust values and the programmer can freely choose the types for both. There is essentially no special mechanism here. A function returns just a regular value which can indicate either success or an error; the callers of a function must check which. Propagating an error simply means returning an error when an error is found. Rust does provide some special constructs to make this easy.
 
 Panicking is a special mechanism for 'immediately' stopping progress in a controlled manner. It is triggered by macros like `panic!` and functions like `unwrap`. It can also be triggered implicitly, e.g., when arithmetic overflows. Panicking is usually not handled by the programmer and terminates the current thread.
 

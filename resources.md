@@ -7,4 +7,5 @@
 ## Blog posts
 
 * [BurntSushi's blog post](https://blog.burntsushi.net/rust-error-handling/) and specifically on [using unwrap](https://blog.burntsushi.net/unwrap/).
-* [Context-preserving error handling](https://kazlauskas.me/entries/errors) blog post
+* [Context-preserving error handling](https://kazlauskas.me/entries/errors) blog post.
+* [Error Handling in a Correctness-Critical Rust Project](http://sled.rs/errors) from the author of Sled, a very high quality project to build a key-value store in Rust.
