@@ -20,7 +20,7 @@ Panics can be triggered in all sorts of ways. The most obvious way is using the 
 
 The assert and debug_assert macros panic if their condition is not met. E.g., `debug_assert_eq` panics (only in debug builds) if it's arguments are not equal.
 
-The functions `unwrap` and `expect` on `Result` or `Option` panic if the receiver is `Err` or `None` (respectively). They can be thought of as a bridge between the worlds of errors using `Result` and errors using `Result`.
+The functions `unwrap` and `expect` on `Result` or `Option` panic if the receiver is `Err` or `None` (respectively). They can be thought of as a bridge between the worlds of errors using `Result` and panicing.
 
 There are many places where panicking is implicit. In debug builds, arithmetic overflow/underflow causes a panic. Indexing (e.g., `some_slice[42]`) out of bounds (or for a key which does not exist) causes a panic. In general, since panicking is not part of the type system or annotated on function signatures, you must assume that any function call might cause a panic, unless you can prove otherwise.
 
