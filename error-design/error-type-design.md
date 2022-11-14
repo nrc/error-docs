@@ -53,8 +53,8 @@ pub struct MessageError {
 }
 
 pub enum MessageErrorKind {
-    Network(IoError),
-    Parse(Option<ProtocolVersion>),
+    Network(NetworkError),
+    Parse(ParseError),
 }
 
 enum NetworkError {
@@ -74,7 +74,7 @@ struct MalformedRespError {
 }
 ```
 
-In this example (over-engineered for such a small example, but imagine it as part of a larger program), `NetworkError` and `ParseError` are used in the implementation and are designed to contain maximal information for recovery. At the API boundary (if we can't recover), these are converted into a `MessageError`. This has is a struct since all errors will contain the request which caused the error, however, it still follows the 'enum taxonomy' approach rather than the 'single struct' approach since the error kinds hold different data. There should be enough information here for users of the API to recover or to report errors to the user.
+In this example (over-engineered for such a small example, but imagine it as part of a larger program), `NetworkError` and `ParseError` are used in the implementation and are designed to contain maximal information for recovery. At the API boundary (if we can't recover), these are converted into a `MessageError`. This is a struct since all errors will contain the request which caused the error, however, it still follows the 'enum taxonomy' approach rather than the 'single struct' approach since the error kinds hold different data. There should be enough information here for users of the API to recover or to report errors to the user.
 
 If designing based on how an error might be handled, you will want a different variant for each different recovery strategy. You might want a different enum for each recovery point, or you might just want a single enum per module or crate. For example,
 
