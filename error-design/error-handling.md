@@ -32,7 +32,7 @@ You might think that for a very quick prototype or script, you don't need error 
 
 You should probably use panics to surface bugs, i.e., in situations which should be impossible. This is easier said than done. For example, consider an integer arithmetic overflow. This might be impossible, but it might also be possible given enough time or the right combination of user input. So even classes of error which usually cause panics are likely only to be best represented as a panic in some circumstances.
 
-When designing an API, either public or private, it is generally better for a function to return a `Result` and let the caller decide to panic or not, rather than always panic on an error. It is very easy to convert a `Result` into an `Error` but the reverse is more difficult and loses information.
+When designing an API, either public or private, it is generally better for a function to return a `Result` and let the caller decide to panic or not, rather than always panic on an error. It is very easy to convert an `Error` into a panic but the reverse is more difficult and loses information.
 
 For how to design the error types carried by `Result`, see the [next chapter](error-type-design.md).
 
