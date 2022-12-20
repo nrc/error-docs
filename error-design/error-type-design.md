@@ -186,7 +186,7 @@ There are some advantages of using a trait object error type:
 
 Since `dyn Trait` types do not have a known size, they must be wrapped in a pointer. Most cases can use `Box` since that is most convenient. For systems with no allocator, or where micro-optimization of the error path is required, you can dedicate some static memory to holding an error and use a `&'static` reference.
 
-The most common trait to use for the trait object is the `Error` trait from [the standard library](https://doc.rust-lang.org/nightly/core/error/trait.Error.html). This is part of core (c.f., std) so can be used in no-std environments. An alternative is to use the `Error` trait from [Anyhow](https://github.com/dtolnay/anyhow), an error handling crate. This has the advantage that you don't need to use unstable features of the standard library. It has the same features as the standard library trait, but with a slightly different API.
+The most common trait to use for the trait object is the `Error` trait from [the standard library](https://doc.rust-lang.org/nightly/core/error/trait.Error.html). This is part of core (as opposed to std) so can be used in no-std environments. An alternative is to use the `Error` trait from [Anyhow](https://github.com/dtolnay/anyhow), an error handling crate. This has the advantage that you don't need to use unstable features of the standard library. It has the same features as the standard library trait, but with a slightly different API.
 
 You could use your own error trait type. For ease of working with other code, you probably want it to have `std::error::Error` as a super-trait. However, I'm not aware of any advantage of doing this over using concrete error types.
 
