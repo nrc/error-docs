@@ -69,7 +69,7 @@ At runtime, execution will stop after the second `parse` call and the value of `
 
 ## `Option`
 
-`Option` is similar to `Result` in that it is a very common, two-variant enum type with a payload type `Some` (compared with `Result::Ok`). The difference is that `Option::None` (compared with `Result::Err`) does not carry a payload. It is, therefore, analogous to `Result<T, ()>` and there are many methods for converting between `Option` and `Result`. `?` works with `Option` just like `Result`.
+`Option` is similar to `Result` in that it is a very common, two-variant enum type with a payload type `Some` (compare to `Result::Ok`). The difference is that `Option::None` (compared with `Result::Err`) does not carry a payload. It is, therefore, analogous to `Result<T, ()>` and there are many methods for converting between `Option` and `Result`. `?` works with `Option` just like `Result`.
 
 The intended meaning of the types, however, is different. `Result` represents a value which has either been correctly computed or where an error occurred in its computation. `Option` represents a value which may or may not be present. Generally, `Option` should not be used for error handling. You may use or come across types like `Result<Option<i32>, MyError>`, this type might be returned where the computation is fallible, and if succeeds it will return either an `i32` or nothing (but importantly, returning nothing is not an error).
 
