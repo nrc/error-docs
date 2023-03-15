@@ -16,6 +16,10 @@ A [crate](https://github.com/dtolnay/anyhow) for working with trait object error
 
 [Supports](https://github.com/shepmaster/snafu) deriving error handling functionality for error types (including the single struct style, not just enum style errors), macros for throwing errors, and using strings as errors.
 
+### Error Stack
+
+An alternative and extension to this-error, [error-stack](https://github.com/hashintel/hash/tree/main/libs/error-stack) helps define your error types, but also adds support for better stacks of errors with arbitrary added attachments and information about how the error is produced and propagated. It also has sophisticated error reporting and formatting.
+
 ### Error reporting crates
 
 These crates are for reporting errors to the user in pretty ways. They are particularly useful for reporting errors in input text (e.g., source code) and are somewhat inspired by rustc's error reporting style.
