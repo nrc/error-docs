@@ -74,7 +74,7 @@ Sometimes there is an alternate path to the path which caused an error and your 
 
 ### Where to recover
 
-You may choose to recover near to where the error occurs, or throw the error up the call stack and recover at some distance from the error. Both approaches have advantages and there is no nest choice.
+You may choose to recover near to where the error occurs, or throw the error up the call stack and recover at some distance from the error. Both approaches have advantages and there is no best choice.
 
 Close to the error you are likely to have the most specific context and therefore the most information for recovery. There is also the minimum of disruption to program state. On the other hand, by throwing the error and dealing with it further from the error site, you might have more options, for example you might be able to interact with the user in a way which is impossible deep in library code. The correct recovery approach may also be clearer, especially if the error occurs in a library. Finally, if you centralize error handling to some extent, this may allow more code reuse.
 
