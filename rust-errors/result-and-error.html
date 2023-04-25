@@ -1,0 +1,247 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Result and Error - Error Handling in Rust</title>
+        <!-- Custom HTML head -->
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../intro.html">Introduction</a></li><li class="chapter-item expanded "><a href="../rust-errors/index.html"><strong aria-hidden="true">1.</strong> Rust errors</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../rust-errors/result-and-error.html" class="active"><strong aria-hidden="true">1.1.</strong> Result and Error</a></li><li class="chapter-item expanded "><a href="../rust-errors/panic.html"><strong aria-hidden="true">1.2.</strong> Panic</a></li><li class="chapter-item expanded "><a href="../rust-errors/interop.html"><strong aria-hidden="true">1.3.</strong> Non-Rust errors and FFI</a></li><li class="chapter-item expanded "><a href="../rust-errors/testing.html"><strong aria-hidden="true">1.4.</strong> Testing</a></li></ol></li><li class="chapter-item expanded "><a href="../ecosystem.html"><strong aria-hidden="true">2.</strong> Rust's ecosystem</a></li><li class="chapter-item expanded "><a href="../error-design/index.html"><strong aria-hidden="true">3.</strong> Error design</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../error-design/thinking-about-errors.html"><strong aria-hidden="true">3.1.</strong> Thinking about errors</a></li><li class="chapter-item expanded "><a href="../error-design/error-handling.html"><strong aria-hidden="true">3.2.</strong> Error handling</a></li><li class="chapter-item expanded "><a href="../error-design/error-type-design.html"><strong aria-hidden="true">3.3.</strong> Error type design</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">3.4.</strong> Case studies</div></li></ol></li><li class="chapter-item expanded "><a href="../resources.html"><strong aria-hidden="true">4.</strong> Resources</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Error Handling in Rust</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="result-and-error"><a class="header" href="#result-and-error">Result and Error</a></h1>
+<p>Using a <code>Result</code> is the primary way of handling errors in Rust. A <code>Result</code> is a generic enum in the standard library, it has two variants: <code>Ok</code> and <code>Err</code>, which indicate correct execution and incorrect execution, respectively. Both <code>Result</code> and its two variants are in the prelude, so you don't need to explicitly import them and you don't have to write <code>Result::Ok</code> as you would for most enums.</p>
+<p>Both variants take a single argument which can be any type. You'll usually see <code>Result&lt;T, E&gt;</code> where <code>T</code> is the type of value returned in <code>Ok</code> and <code>E</code> is the error type returned in <code>Err</code>. It's fairly common for modules to use a single error type for the whole module and to define an alias like <code>pub type Result&lt;T&gt; = std::result::Result&lt;T, MyError&gt;;</code>. In that case, you'll see <code>Result&lt;T&gt;</code> as the type, where <code>MyError</code> is an implicit error type.</p>
+<p>Creating a <code>Result</code> value is as simple as using the variant as a constructor, just like other enums. E.g, for a <code>Result&lt;i32, i32&gt;</code> (a <code>Result</code> with an <code>i32</code> payload and an <code>i32</code> error code), you would use <code>Ok(42)</code> and <code>Err(2)</code> to create <code>Result</code> values.</p>
+<p>When receiving a <code>Result</code> object, you can address the ok and error cases by using a <code>match</code> expression, e.g.,</p>
+<pre><code>fn foo(r: Result&lt;String, MyError&gt;) {
+    match r {
+        Ok(s) =&gt; println!(&quot;foo got a string: {s}&quot;),
+        Err(e) =&gt; println!(&quot;an error occurred: {e}&quot;),
+    }
+}
+</code></pre>
+<p>There are more ergonomic ways to handle <code>Result</code>s too. There are a whole load of combinator methods on <code>Result</code>. See the <a href="https://doc.rust-lang.org/stable/std/result/enum.Result.html#implementations">docs</a> for details. There are way too many to cover here, but as an example, <code>map</code> takes a function and applies it to the payload of the result if the result is <code>Ok</code> and does nothing if it is <code>Err</code>, e.g.,</p>
+<pre><code>fn foo(r: Result&lt;i32, MyError&gt;) -&gt; Result&lt;String, MyError&gt; {
+    r.map(|i| i.to_string())
+}
+</code></pre>
+<h3 id="the--operator"><a class="header" href="#the--operator">The <code>?</code> operator</a></h3>
+<p>Applying <code>?</code> to a result will either unwrap the payload, if the result is an <code>Ok</code>, or immediately return the error if it is an <code>Err</code>. E.g.,</p>
+<pre><code>fn foo(r: Result&lt;i32, MyError&gt;) -&gt; Result&lt;String, MyError&gt; {
+    let i = r?; // Unwraps Ok, returns an Err
+    Ok(i.to_string())
+}
+</code></pre>
+<p>The above code does the same as the previous example. In this case, the <code>map</code> code is more idiomatic, but if we had a lot of work to do with <code>i</code>, then using <code>?</code> would be better. Note that the type of <code>i</code> is <code>i32</code> in both examples.</p>
+<p>The <code>?</code> operator can be used with other types too, notably <code>Option</code>. You can also use it with your own types, see the discussion of the <code>Try</code> trait, below.</p>
+<p><code>?</code> does not have to just return the error type directly. It can convert the error type into another by calling <code>From::from</code>. So if you have two error types: <code>Error1</code> and <code>Error2</code> and <code>Error2</code> implements <code>From&lt;Error1&gt;</code>, then the following will work (note the different error types in the signature):</p>
+<pre><code>fn foo(r: Result&lt;i32, Error1&gt;) -&gt; Result&lt;String, Error2&gt; {
+    let i = r?;
+    // ...
+}
+</code></pre>
+<p>This implicit conversion is relied on for several patterns of error handling we'll see in later chapters.</p>
+<h3 id="try-blocks"><a class="header" href="#try-blocks">Try blocks</a></h3>
+<p>Try blocks are an unstable language feature (<code>#![feature(try_blocks)]</code>). The syntax is <code>try { ... }</code> where the block contains code like any other block. The difference compared to a regular block, is that a try block introduces a scope for the question mark operator. If you use <code>?</code> inside a try block, it will propagate the error to the result of the block immediately, rather than returning the error from the current function.</p>
+<p>For example,</p>
+<pre><pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let result: Result&lt;i32, ParseIntError&gt; = try {
+    &quot;1&quot;.parse::&lt;i32&gt;()?
+        + &quot;foo&quot;.parse::&lt;i32&gt;()?
+        + &quot;3&quot;.parse::&lt;i32&gt;()?
+};
+<span class="boring">}
+</span></code></pre></pre>
+<p>At runtime, execution will stop after the second <code>parse</code> call and the value of <code>result</code> will be the error from that call. Execution will continue after the <code>let</code> statement, without returning.</p>
+<h2 id="option"><a class="header" href="#option"><code>Option</code></a></h2>
+<p><code>Option</code> is similar to <code>Result</code> in that it is a very common, two-variant enum type with a payload type <code>Some</code> (compare to <code>Result::Ok</code>). The difference is that <code>Option::None</code> (compared with <code>Result::Err</code>) does not carry a payload. It is, therefore, analogous to <code>Result&lt;T, ()&gt;</code> and there are many methods for converting between <code>Option</code> and <code>Result</code>. <code>?</code> works with <code>Option</code> just like <code>Result</code>.</p>
+<p>The intended meaning of the types, however, is different. <code>Result</code> represents a value which has either been correctly computed or where an error occurred in its computation. <code>Option</code> represents a value which may or may not be present. Generally, <code>Option</code> should not be used for error handling. You may use or come across types like <code>Result&lt;Option&lt;i32&gt;, MyError&gt;</code>, this type might be returned where the computation is fallible, and if succeeds it will return either an <code>i32</code> or nothing (but importantly, returning nothing is not an error).</p>
+<h2 id="the-error-trait"><a class="header" href="#the-error-trait">The <code>Error</code> trait</a></h2>
+<p>The error trait, <a href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html"><code>std::error::Error</code></a>, is a trait for error types. There is no hard requirement, you can use a type in a <code>Result</code> and with <code>?</code> without implementing <code>Error</code>. It has some useful functionality, and it means you can use dynamic error handling using <code>dyn Error</code> types. Generally you <em>should</em> implement <code>Error</code> for your error types (there are no required methods, so doing so is easy); most error libraries will do this for you.</p>
+<h3 id="provided-functionality"><a class="header" href="#provided-functionality">Provided functionality</a></h3>
+<p><code>Display</code> is a super-trait of <code>Error</code> which means that you can always convert an error into a user-facing string. Most error libraries let you derive the <code>Display</code> impl using an attribute and a custom format string.</p>
+<p>The <code>Error</code> trait has an experimental mechanism for attaching and retrieving arbitrary data to/from errors. This mechanism is type-driven: you provide and request data based on its type. You use <code>request</code> methods (e.g., <a href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html#method.request_ref"><code>request_ref</code></a>) to request data and the <a href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html#method.provide"><code>provide</code></a> method to provide data, either by value or by reference. You can use this mechanism to attach extra context to your errors in a uniform way.</p>
+<p>A common usage of this mechanism is for backtraces. A backtrace is a record of the call stack when an error occurs. It has type <a href="https://doc.rust-lang.org/nightly/std/backtrace/struct.Backtrace.html"><code>Backtrace</code></a> which has various methods for iterating over the backtrace and capturing the backtrace when an error occurs. To get a backtrace, use the <code>Error::request_ref</code> method, e.g., <code>if let Some(trace) = err.request_ref::&lt;Backtrace&gt;() { ... }</code>.</p>
+<p>For an error to support backtraces, it must capture a backtrace when the error occurs and store it as a field. The error must then override the <code>Error::provide</code> method to provide the backtrace if it is requested. For more details on this mechanism see the <a href="https://doc.rust-lang.org/nightly/std/any/index.html#provider-and-demand">docs</a> of the <code>Provider</code> trait which is used behind the scenes to implement it. (Note that there used to be a specific method for getting a backtrace from an error and this has been replaced by the generic mechanism described here).</p>
+<p><a href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html#method.source"><code>Error::source</code></a> is a way to access a lower-level cause of an error. For example, if your error type is an enum <code>MyError</code> with a variant <code>Io(std::io::Error)</code>, then you could implement <code>source</code> to return the nested <code>io::Error</code>. With deep nesting, you can imagine a chain of these source errors, and <code>Error</code> provides a <a href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html#method.sources"><code>sources</code></a> method<sup class="footnote-reference"><a href="#1">1</a></sup> to get an iterator over this chain of source errors.</p>
+<div class="footnote-definition" id="1"><sup class="footnote-definition-label">1</sup>
+<p>This and some other methods are implemented on <code>dyn Error</code>, rather than in the trait itself. That makes these methods usable on trait objects (which wouldn't be possible otherwise due to generics, etc.), but means they are <em>only</em> usable on trait objects. That reflects the expected use of these methods with the dynamic style of error handling (see the following section).</p>
+</div>
+<h3 id="dynamic-error-handling"><a class="header" href="#dynamic-error-handling">Dynamic error handling</a></h3>
+<p>When using <code>Result</code> you can specify the concrete error type, or you can use a trait object, e.g., <code>Result&lt;T, Box&lt;dyn Error&gt;&gt;</code>. We'll talk about the pros and cons of these approaches in later chapters on designing error handling, for now we'll just explain how it works.</p>
+<p>To make this work, you implement <code>Error</code> for your concrete error types, and ensure they don't have any borrowed data (i.e., they have a <code>'static</code> bound). For ease of use, you'll want to provide a constructor which returns the abstract type (e.g., <code>Box&lt;dyn Error&gt;</code>) rather than the concrete type. Creating and propagating errors works the same way as using concrete error types.</p>
+<p>Handling errors might be possible using the abstract type only (using the <code>Display</code> impl, <code>source</code> and <code>sources</code> methods, and any other context), or you can downcast the error trait object to a concrete type (using one of the <code>downcast</code> methods). Usually, there are many possibilities for the concrete type of the error, you can either try downcasting to each possible type (the methods return <code>Option</code> or <code>Result</code> which facilitates this) or use the <code>is</code> method to test for the concrete type. This technique is an alternative to the common <code>match</code> destructuring of concrete errors.</p>
+<h3 id="evolution-of-the-error-trait"><a class="header" href="#evolution-of-the-error-trait">Evolution of the <code>Error</code> trait</a></h3>
+<p>Error handling in general, and the <code>Error</code> trait in particular, have been evolving for a long time and are still in flux. Much of what is described above is nightly only and many unstable features have changed, and several stable ones deprecated. If you're targetting stable Rust, it is best to mostly avoid using the <code>Error</code> trait and instead use an ecosystem alternative like <a href="https://github.com/dtolnay/anyhow">Anyhow</a>. You should still implement <code>Error</code> though, since the trait itself is stable and this facilitates users of your code to choose the dynamic path if they want. You should also be conscious when reading docs/StackOverflow/blog posts that things may have changed.</p>
+<h2 id="the-try-trait"><a class="header" href="#the-try-trait">The <code>Try</code> trait</a></h2>
+<p>The <code>?</code> operator and try blocks, and their semantics are not hard-wired to <code>Result</code> and <code>Option</code>. They are tied to the <a href="https://doc.rust-lang.org/nightly/std/ops/trait.Try.html"><code>Try</code></a> trait, which means they can work with any type, including a custom alternative to <code>Result</code>. We don't recommend using your own custom <code>Result</code>, we have in fact never found a good use case (even when implementing an error handling library or in other advanced cases) and it will make your code much less compatible with the ecosystem. Probably, the reason you might want to implement the <code>Try</code> trait is for non-error related types which you want to support ergonomic short-circuiting behaviour using <code>?</code> (e.g., <code>Poll</code>; although because of the implied semantics of error handling around <code>?</code>, this might also be a bad idea). Anyway, it's a kinda complex trait and we're not going to dive into it here, see the docs if you're interested.</p>
+<h2 id="deprecated-stuff"><a class="header" href="#deprecated-stuff">Deprecated stuff</a></h2>
+<p>There is a deprecated macro, <code>try</code>, which does basically the same thing as <code>?</code>. It only works with <code>Result</code> and in editions since 2018, you have to use <code>r#try</code> syntax to name it. It is deprecated and there is no reason to use it rather than <code>?</code>; you might come across it in old code though.</p>
+<p>There are some deprecated methods on the <code>Error</code> trait. Again, there is no reason to use these, but you might see them in older code. <code>Error::description</code> has been replaced by using a <code>Display</code> impl. <code>Error::cause</code> has been replaced by <code>Error:source</code>, which has an additional <code>'static</code> bound on the return type (which allows it to be downcast to a concrete error type).</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../rust-errors/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                            <a rel="next" href="../rust-errors/panic.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../rust-errors/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                    <a rel="next" href="../rust-errors/panic.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+    </body>
+</html>

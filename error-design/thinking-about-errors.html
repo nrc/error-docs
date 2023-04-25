@@ -1,0 +1,205 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Thinking about errors - Error Handling in Rust</title>
+        <!-- Custom HTML head -->
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../intro.html">Introduction</a></li><li class="chapter-item expanded "><a href="../rust-errors/index.html"><strong aria-hidden="true">1.</strong> Rust errors</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../rust-errors/result-and-error.html"><strong aria-hidden="true">1.1.</strong> Result and Error</a></li><li class="chapter-item expanded "><a href="../rust-errors/panic.html"><strong aria-hidden="true">1.2.</strong> Panic</a></li><li class="chapter-item expanded "><a href="../rust-errors/interop.html"><strong aria-hidden="true">1.3.</strong> Non-Rust errors and FFI</a></li><li class="chapter-item expanded "><a href="../rust-errors/testing.html"><strong aria-hidden="true">1.4.</strong> Testing</a></li></ol></li><li class="chapter-item expanded "><a href="../ecosystem.html"><strong aria-hidden="true">2.</strong> Rust's ecosystem</a></li><li class="chapter-item expanded "><a href="../error-design/index.html"><strong aria-hidden="true">3.</strong> Error design</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../error-design/thinking-about-errors.html" class="active"><strong aria-hidden="true">3.1.</strong> Thinking about errors</a></li><li class="chapter-item expanded "><a href="../error-design/error-handling.html"><strong aria-hidden="true">3.2.</strong> Error handling</a></li><li class="chapter-item expanded "><a href="../error-design/error-type-design.html"><strong aria-hidden="true">3.3.</strong> Error type design</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">3.4.</strong> Case studies</div></li></ol></li><li class="chapter-item expanded "><a href="../resources.html"><strong aria-hidden="true">4.</strong> Resources</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Error Handling in Rust</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="thinking-about-errors"><a class="header" href="#thinking-about-errors">Thinking about errors</a></h1>
+<p>An error is an event where something goes wrong in a program. However, there are many different ways things can go wrong, and many different kinds of 'wrong'. The details of an error event dictate how it should be represented and handled. In this section, we'll cover many different ways to categorise and characterise errors.</p>
+<p>I'm not sure if the terminology I use here is all standard, I've certainly made some up.</p>
+<h2 id="internal-vs-external-errors"><a class="header" href="#internal-vs-external-errors">Internal vs external errors</a></h2>
+<p>Consider a JSON parser. It opens a file, reads the file, and attempts to parse the data as JSON into a data structure. There are many things which could go wrong. The user might supply a filename which does not exist on disk, trying to open the file will fail. If the filename is correct, when the program attempts to read the file, there might be an operating system error which causes the read to fail. If reading succeeds, the JSON might be malformed, so it cannot be parsed correctly. If the file is correct, but there is a bug in the program, some arithmetic operation may overflow.</p>
+<p>It is useful to categorise these errors as 'external', where the input is incorrect, and 'internal', where the input is correct but something unexpected happens.</p>
+<p>An incorrect filename or malformed JSON data are external errors. These are errors which the program should expect to happen sometimes.</p>
+<p>Failure to read the file, or arithmetic overflow are internal errors. These are not due to user input, but due to a problem with the program's environment or the program itself. These errors are unexpected, to varying extents. Bugs in the program are a kind of internal error, these may produce an error which the program itself can detect, or may be a silent error.</p>
+<p>In this example, the input was user input, but in general, an external error might be caused by input which comes from another part of the program. From the perspective of a library, malformed input from the client program would cause an external error.</p>
+<p>Note that although I've said some errors are expected/unexpected there is not a perfect correlation with internal/external. A library which states that the client is responsible for data integrity might treat malformed input as an unexpected external error. A failed network connection on a mobile device is an expected internal error.</p>
+<p>The split between internal and external is not clean, since what constitutes a program is often not clearly defined. Consider a distributed system (or even a system with multiple processes), errors caused by other nodes/processes (or due to interactions of nodes, such as a transaction error) might be considered internal from the perspective of the whole system and external from the perspective of a single node/process.</p>
+<p>One can also extend this thinking within program, making a distinction between errors which occur in the current module, compared with errors which occur in one module and are handled in a different one.</p>
+<h2 id="expectedunexpected-spectrum-of-errors"><a class="header" href="#expectedunexpected-spectrum-of-errors">Expected/unexpected spectrum of errors</a></h2>
+<p>Some errors happen in the normal operation of a program and some are very rare. I believe treating this as a binary is incorrect and we should think about a spectrum of likelihood of an error occurring.</p>
+<p>At one extreme, some errors are impossible, modulo cosmic rays, CPU bugs, etc. Some errors are possible, but should never happen and will only happen if there is a bug in the program. Then there are errors which are expected to happen sometimes, with different frequencies, e.g., file system errors are fairly unlikely to happen, network errors are much more likely, but still rare in a server, but common-ish on a mobile device. At the other extreme, one can write code which always triggers an error condition (and arguably this is not a bug if the error is handled, but it may be considered poor programming practice).</p>
+<h2 id="recoverable-vs-unrecoverable"><a class="header" href="#recoverable-vs-unrecoverable">Recoverable vs unrecoverable</a></h2>
+<p>Can a program recover when an error occurs? Documentation for Rust often starts with a split between recoverable and unrecoverable errors. However, I think this is a more complicated question. Whether a program can recover from an error depends on what we mean by recovering (and what we mean by 'program' - is it recovery if an observer process restarts the erroring process?), it may depend on the program state before and after the error, it may depend on where we try to recover (it might be impossible to recover where the error occurs, but possible further up the call stack, or vice versa), it may depend on what context is available with the error. Even if it is technically possible to recover, if that would take an unreasonable amount of effort or risk, then it might be better to consider the error as unrecoverable.</p>
+<p>There is also the question of intention. An error might be technically recoverable, but a library might want to treat it as unrecoverable for some reason.</p>
+<p>So, I think there is a whole spectrum of recoverability which we can consider for errors and the context where the error occurs.</p>
+<h2 id="multiple-errors"><a class="header" href="#multiple-errors">Multiple errors</a></h2>
+<p>Errors combine in all sorts of ways:</p>
+<ul>
+<li>One error might cause another error as it is propagated or during recovery.</li>
+<li>An error might be deliberately converted into a different kind of error.</li>
+<li>An error might re-occur after recovery, or even after a 'successful' recovery, might cause a different error.</li>
+<li>Errors might be collatable, i.e, after an error occurs and execution continues, other errors are collected and presented to the user all at once.</li>
+</ul>
+<h2 id="execution-environment"><a class="header" href="#execution-environment">Execution environment</a></h2>
+<p>This one is a bit different to the others. It is important to consider how a program is executing when thinking about errors. We might want to treat errors differently when testing or debugging code. We might also treat errors differently if our program is embedded in another (either as a library, a plugin, or some kind application-in-an-application-server scenario). Likewise, if our program is the OS, errors will be treated differently to if it is an application running on top of the OS. A program might also be inside some kind of VM or container with its own error handling facilities, or it might have some kind of supervisor or observer program.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../error-design/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                            <a rel="next" href="../error-design/error-handling.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../error-design/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                    <a rel="next" href="../error-design/error-handling.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+    </body>
+</html>

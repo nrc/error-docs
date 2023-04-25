@@ -1,0 +1,243 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Error handling - Error Handling in Rust</title>
+        <!-- Custom HTML head -->
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../intro.html">Introduction</a></li><li class="chapter-item expanded "><a href="../rust-errors/index.html"><strong aria-hidden="true">1.</strong> Rust errors</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../rust-errors/result-and-error.html"><strong aria-hidden="true">1.1.</strong> Result and Error</a></li><li class="chapter-item expanded "><a href="../rust-errors/panic.html"><strong aria-hidden="true">1.2.</strong> Panic</a></li><li class="chapter-item expanded "><a href="../rust-errors/interop.html"><strong aria-hidden="true">1.3.</strong> Non-Rust errors and FFI</a></li><li class="chapter-item expanded "><a href="../rust-errors/testing.html"><strong aria-hidden="true">1.4.</strong> Testing</a></li></ol></li><li class="chapter-item expanded "><a href="../ecosystem.html"><strong aria-hidden="true">2.</strong> Rust's ecosystem</a></li><li class="chapter-item expanded "><a href="../error-design/index.html"><strong aria-hidden="true">3.</strong> Error design</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../error-design/thinking-about-errors.html"><strong aria-hidden="true">3.1.</strong> Thinking about errors</a></li><li class="chapter-item expanded "><a href="../error-design/error-handling.html" class="active"><strong aria-hidden="true">3.2.</strong> Error handling</a></li><li class="chapter-item expanded "><a href="../error-design/error-type-design.html"><strong aria-hidden="true">3.3.</strong> Error type design</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">3.4.</strong> Case studies</div></li></ol></li><li class="chapter-item expanded "><a href="../resources.html"><strong aria-hidden="true">4.</strong> Resources</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Error Handling in Rust</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="error-handling"><a class="header" href="#error-handling">Error handling</a></h1>
+<p>This chapter will discuss what to actually do with your errors.</p>
+<p>When your code encounters an error, you have a few choices:</p>
+<ul>
+<li>recover from the error,</li>
+<li>propagate the error,</li>
+<li>crash.</li>
+</ul>
+<p>Recovery is the most interesting option and most of this section will be spent on this. If you don't recover, then you'll probably propagate the error. This is pretty straightforward, the only choice is whether to convert the error into a different one or propagate it as is. We'll discuss this more in the following chapter on error types.</p>
+<p>Crashing can mean panicking the thread or aborting the process. The former might cause the latter, but that doesn't usually matter. Whether you abort or panic depends on the architecture of your program and the severity of the error. If the program is designed to cope with panicking threads, and the blast radius of the error is limited to a single thread, then panicking is viable and probably the better option. If your program cannot handle threads panicking, or if the error means that multiple threads will be in an inconsistent state, then aborting is probably better.</p>
+<p>Crashing may be a kind of recovery (if just a thread crashes and the program continues, or if the program runs in an environment where crashing is expected and the program can be restarted), but usually it is the least desirable response to an error. Even for prototype programs, you are probably better to propagate errors to the top level rather than crashing, since it is easier to convert that to a proper error handling system (and prototypes turn into production code more often than anyone would like).</p>
+<h2 id="error-handling-strategy"><a class="header" href="#error-handling-strategy">Error handling strategy</a></h2>
+<p>Your project needs an error handling strategy. I consider this an architectural issue and should be decided in the early stages of planning, since it affects the API and implementation designs and can be difficult to change later in development.</p>
+<p>Your strategy should include expectations for robustness (for example, how high priority is it that errors do not surface to the user? Should correctness, performance, or robustness be prioritised? What situations can we assume will never happen?), assumptions about the environment in which the code will run (in particular can errors/crashes be handled externally? Is the program run in a container or VM, or otherwise supervised? Can we tolerate restarting the program? How often?), do errors need to be propagated or reported to other components of the system? Requirements for logging, telemetry, or other reporting, <em>who</em> should handle errors (e.g., for a library, which kinds of error should be handled internally and which should the client handle), and how error/recovery states will be tested.</p>
+<p>Whether your project is a library or an application, and if an application whether it stands alone or is a component in a larger system, will have a huge effect on your error handling strategy. Most obviously, if you are a stand-alone application then there is nobody else to handle errors! In an application you will have more certainty about the requirements of the system, whereas for a library you will likely need to provide for more flexibility.</p>
+<p>Having identified the requirements of your strategy, this will inform how you represent errors as types (discussed below and in the <a href="error-type-design.html">next chapter</a>), where and how you will recover from errors, and the information your error types must carry (discussed in the following sections).</p>
+<h2 id="result-or-panic"><a class="header" href="#result-or-panic">Result or panic?</a></h2>
+<p>Most programs should use <code>Result</code> for most of their error handling.</p>
+<p>You might think that for a very quick prototype or script, you don't need error handling and unwrapping and panicking are fine. However, using <code>?</code> is usually more ergonomic than <code>unwrap</code> and these tiny programs have a habit of growing into larger ones, and converting panicking code into code with proper error handling is a huge chore. Much better to have a very simple error type (even just a string); changing the error type is much easier.</p>
+<p>You should probably use panics to surface bugs, i.e., in situations which should be impossible. This is easier said than done. For example, consider an integer arithmetic overflow. This might be impossible, but it might also be possible given enough time or the right combination of user input. So even classes of error which usually cause panics are likely only to be best represented as a panic in some circumstances.</p>
+<p>When designing an API, either public or private, it is generally better for a function to return a <code>Result</code> and let the caller decide to panic or not, rather than always panic on an error. It is very easy to convert an <code>Error</code> into a panic but the reverse is more difficult and loses information.</p>
+<p>For how to design the error types carried by <code>Result</code>, see the <a href="error-type-design.html">next chapter</a>.</p>
+<h2 id="recovery"><a class="header" href="#recovery">Recovery</a></h2>
+<p>Error recovery is tightly linked to your program and to the individual error. You can't recover from a network error in the same way as a user input error (at least not all the time), and different projects (or parts of projects) will handle these errors in different ways. However, there are some general strategies to consider, and there are some ways which recovery intersects with Rust's error types.</p>
+<h3 id="techniques-for-recovery"><a class="header" href="#techniques-for-recovery">Techniques for recovery</a></h3>
+<p>Possible recovery techniques are:</p>
+<ul>
+<li>stop,</li>
+<li>retry,</li>
+<li>retry with new input,</li>
+<li>ignore,</li>
+<li>fallback.</li>
+</ul>
+<p>Most of these may be accompanied by some change in program state. E.g., if you are retrying, you may increment a retry counter so that after some number of failed retries, a different technique is tried. Some programs might have much more complex 'recovery modes'.</p>
+<p>The recovery technique is likely combined with some logging action or reporting to the user. These actions require additional information in the error type which is not needed directly for recovery. I think it is useful to think of logging or reporting as part of error recovery, rather than an alternative, since it is your code which handles the error, rather than throwing it for client code to deal with.</p>
+<h4 id="stop"><a class="header" href="#stop">Stop</a></h4>
+<p>If an error occurs while performing an action, you can simply stop doing the action. This might require 'undo'ing some actions to ensure the program is in a consistent state. Sometimes this just means calling destructors, but it might mean removing data written to disk, etc. Failing to execute an action should probably be reported in some way, either back to the user or via an API to another program or part of the program.</p>
+<p>An extreme form of stopping is crashing. You could terminate the current thread (if your program is designed to handle this happening), or the whole process. This is usually not a very responsible thing to do, but in some environments it is fine (e.g., if the process is supervised by another process or if the process is part of a distributed system where nodes can recover). Assuming that the systems can recover from such a crash, you need to consider how it will recover - if the process runs with the same input and tries the same action, will it always get the same result (i.e., crash again)?</p>
+<h4 id="retry"><a class="header" href="#retry">Retry</a></h4>
+<p>If the error is due to a temporary fault or a fallible actor (such as a human user), simply retrying the action which caused the error might succeed. In other cases, you can retry with different input (e.g., by asking the user for more input, or by using a longer timeout, or asking a different server).</p>
+<h4 id="ignore"><a class="header" href="#ignore">Ignore</a></h4>
+<p>Some errors can simply be ignored. This might happen when the action being attempted is optional in some way, or where a reasonable default value can be used instead of the result of the action.</p>
+<h4 id="fallback"><a class="header" href="#fallback">Fallback</a></h4>
+<p>Sometimes there is an alternate path to the path which caused an error and your program can fallback to using that path. This might be as simple as using a default value instead of trying to find a better value, or it might be using an alternate library or alternate hardware (e.g., falling back to an older library if the newer library is not present on a system, or using CPU rendering rather than dedicated graphics hardware).</p>
+<h3 id="where-to-recover"><a class="header" href="#where-to-recover">Where to recover</a></h3>
+<p>You may choose to recover near to where the error occurs, or throw the error up the call stack and recover at some distance from the error. Both approaches have advantages and there is no best choice.</p>
+<p>Close to the error you are likely to have the most specific context and therefore the most information for recovery. There is also the minimum of disruption to program state. On the other hand, by throwing the error and dealing with it further from the error site, you might have more options, for example you might be able to interact with the user in a way which is impossible deep in library code. The correct recovery approach may also be clearer, especially if the error occurs in a library. Finally, if you centralize error handling to some extent, this may allow more code reuse.</p>
+<h3 id="information-for-recovery"><a class="header" href="#information-for-recovery">Information for recovery</a></h3>
+<p>If you always recover close to the error site, then your error types only need to carry information for logging/reporting (in the event that recovery fails). If you handle errors further from the error site, then your error type must carry enough information for recovery.</p>
+<p>As errors propagate through the stack, you may want to add information to your error. This is fairly easy using the <code>Result::map_err</code> method, but you will need to account for this when designing your error types. Likewise, you may wish to remove information by making the error more abstract (especially at module or crate boundaries). This is inevitably a trade-off between providing enough information to recover, but not providing too much which might expose the internals of your module or make the API too complex.</p>
+<p>There is also the question of how to store information in your errors. For most code, I recommend storing information structurally as data and avoiding pre-formatting data into message strings or summarizing data. Storing information as structural data lets your code's client decide how to log or report errors, enables maximal flexibility in recovery, allows localization and other customisation, and permits structural logging.</p>
+<h2 id="logging"><a class="header" href="#logging">Logging</a></h2>
+<p>Logging is useful for debugging and basically essential for running services in production. You will probably have a bunch of constraints around logging because of how it must integrate (technically and culturally) with other systems.</p>
+<p>How you log should follow from your logging strategy - how you decide what to log and how to log it. That is beyond the scope of this doc. I'll cover some options, but which is appropriate will depend on your logging strategy, rather than anything I could enumerate here.</p>
+<p>One big choice is whether to log errors where they occur or in some central-ish point or points. The former is easier since it puts less pressure on the errors to carry context. The latter makes it easier to log only unhandled (at some level) errors, and it makes it easier to change the way errors are logged. This will somewhat depend on whether you want to log all errors or only uncaught ones. In the latter case, you'll probably want to do some logging in error recovery too since this is an area where bugs (or performance issues) are more likely to be triggered.</p>
+<p>Another choice is whether to keep data in errors structurally or pre-formatted. The latter is easier and more flexible in the sense that the data stored can be changed over time easily. However, it is less flexible in that there is only one choice for logging. In the former case, logging in different places or at different times can log different information. The information can also be formatted differently, internationalized, translated, or used to create derived information. Keeping data structurally is therefore the better choice in large or long-lived systems.</p>
+<p>Structured logging takes the structured approach further by logging data in a structured way, rather than logging a formatted string. It is usually superior in all but the simplest scenarios.</p>
+<p>Tracing is an approach to logging which relates log events by program flow across time. This is often much more useful than logging only point-in-time events without context. Generally, errors don't need to be aware of whether you do simple logging or tracing. However, if you're logging errors centrally, you may need to add some tracing information to errors so that when they are logged there is the relevant context for the tracing library.</p>
+<h3 id="libraries-for-logging"><a class="header" href="#libraries-for-logging">Libraries for logging</a></h3>
+<ul>
+<li><a href="https://github.com/tokio-rs/tracing">tracing</a> is the best choice for full tracing and structured logging. It is maintained by the Tokio project, but does not require using Tokio. There is an ecosystem of integration crates and other libraries.</li>
+<li><a href="https://github.com/rust-lang/log">log</a> is part of the Rust project and an old standard of Rust logging. It requires a logger to actually do the logging and is therefore independent of how logs are emitted. It supports simple structured logging, but not tracing.</li>
+<li><a href="https://github.com/env-logger-rs/env_logger/">env-logger</a> is the most commonly used logger (used with log, above). It is simple and minimal and best suited for small projects, prototypes, etc.</li>
+<li><a href="https://github.com/estk/log4rs">log4rs</a> and <a href="https://github.com/daboross/fern">fern</a> are more full-featured but complex loggers (which again integrate with log).</li>
+<li><a href="https://github.com/slog-rs/slog">slog</a> was the most popular choice for structured logging and is an alternative to log. However, it does not seem to be maintained any longer and is probably not a good choice for new systems.</li>
+</ul>
+<p>I would recommend using Tracing if you need production-strength logging/tracing, or log and env-logger if you need simple logging.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../error-design/thinking-about-errors.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                            <a rel="next" href="../error-design/error-type-design.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../error-design/thinking-about-errors.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                    <a rel="next" href="../error-design/error-type-design.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+    </body>
+</html>

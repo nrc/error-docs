@@ -1,0 +1,372 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Error type design - Error Handling in Rust</title>
+        <!-- Custom HTML head -->
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../intro.html">Introduction</a></li><li class="chapter-item expanded "><a href="../rust-errors/index.html"><strong aria-hidden="true">1.</strong> Rust errors</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../rust-errors/result-and-error.html"><strong aria-hidden="true">1.1.</strong> Result and Error</a></li><li class="chapter-item expanded "><a href="../rust-errors/panic.html"><strong aria-hidden="true">1.2.</strong> Panic</a></li><li class="chapter-item expanded "><a href="../rust-errors/interop.html"><strong aria-hidden="true">1.3.</strong> Non-Rust errors and FFI</a></li><li class="chapter-item expanded "><a href="../rust-errors/testing.html"><strong aria-hidden="true">1.4.</strong> Testing</a></li></ol></li><li class="chapter-item expanded "><a href="../ecosystem.html"><strong aria-hidden="true">2.</strong> Rust's ecosystem</a></li><li class="chapter-item expanded "><a href="../error-design/index.html"><strong aria-hidden="true">3.</strong> Error design</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../error-design/thinking-about-errors.html"><strong aria-hidden="true">3.1.</strong> Thinking about errors</a></li><li class="chapter-item expanded "><a href="../error-design/error-handling.html"><strong aria-hidden="true">3.2.</strong> Error handling</a></li><li class="chapter-item expanded "><a href="../error-design/error-type-design.html" class="active"><strong aria-hidden="true">3.3.</strong> Error type design</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">3.4.</strong> Case studies</div></li></ol></li><li class="chapter-item expanded "><a href="../resources.html"><strong aria-hidden="true">4.</strong> Resources</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Error Handling in Rust</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="error-type-design"><a class="header" href="#error-type-design">Error type design</a></h1>
+<p>You can use any type as an error in Rust. The <code>E</code> in <code>Result&lt;T, E&gt;</code> has no bounds and can be anything. At the highest level there are two choices: use a concrete error type or use a trait object (e.g., <code>Box&lt;dyn Error&gt;</code>). In the latter case, you'll still need concrete error types to use for values, you just won't expose them as part of your API. When designing the concrete error types, there are two common approaches: create a taxonomy of error types primarily using enums, or use a single struct which represents all the errors in a module or modules.</p>
+<p>There are also some less common choices for the concrete error types. You can use an integer type which can be useful around FFI where you have an error number from C code. You should probably convert the error number into a more idiomatic error type before passing it on, but it can be a useful technique as an intermediate form between C and Rust types, or for some very specialised cases.</p>
+<p>You can also use a string error message as your error type, this is rarely suitable for production code but is useful when prototyping because converting code from one kind of error type to another is much easier than converting panicking code to using <code>Result</code>s (it also lets you use <code>?</code> which can clean up your code nicely). You'll probably want to include <code>type Result&lt;T&gt; = std::result::Result&lt;T, &amp;'static str&gt;;</code> to make this technique more usable. Alternatively, you can use string messages as the concrete types underlying trait object error types. Anyhow provides the <code>anyhow!</code>/<code>bail!</code> macro to make this easy.</p>
+<p>For the rest of this section, we'll describe the two styles for concrete error types, then using trait objects as error types. We'll finish with some discussion on how to choose which technique to use, and some general tips for writing better error types.</p>
+<h2 id="enum-style"><a class="header" href="#enum-style">Enum style</a></h2>
+<p>In this style, you define a taxonomy of errors with a high level of detail and specialization, in particular, different kinds of errors have different data. Concretely, this means primarily using enums with a variant for each kind of error and the data specific to that kind of error embedded in the variant. E.g.,</p>
+<pre><pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub enum MyError {
+    Network(IoError, Request),
+    Malformed(MalformedRespError),
+    MissingHeader(String),
+    UnknownField(String),
+}
+
+pub struct MalformedRespError {
+    // ...
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>(Note that I think this is a poorly designed error, I'll give better designs below).</p>
+<p>The advantages of this approach are:</p>
+<ul>
+<li>there is maximum information available, this is especially useful for error recovery,</li>
+<li>it's easy to extend with new errors,</li>
+<li>it's a common approach and is conceptually simple, so it is easy to understand,</li>
+<li>by using more enums or fewer enums with more variants, you can adjust the amount of static vs dynamic typing,</li>
+<li>throwing, rethrowing (especially at API boundaries when making errors strictly more abstract), and catching errors is ergonomic,</li>
+<li>it works well with error libraries like thiserror.</li>
+</ul>
+<p>There are two ways to consider the design: by designing based on how the errors will arise or how the errors will be handled. I think the former is easier and more future-proof (how can you predict all the ways an error might be handled?).</p>
+<p>There is a lot of scope for different design decisions: how to categorise errors, how much detail to include, how to structure the errors, how to handle back/forward compatibility, etc. Concretely, how many enums should you use and how many variants? Should you nest errors? How should you name the enums and variants?</p>
+<p>If designing based on how errors arise, you want one enum for each class of errors and one variant for each specific kind of error (obviously, there's a lot of space here for what constitutes a class or specific kind of error). More practically, a function can only return a single error type, so all errors which can be returned from a function must belong to a single enum. Since errors can likely be returned from multiple functions, you'll end up with a set of errors returned from a set of functions which have the same error type. It is possible, but not necessary, for that set of functions to match with module boundaries. So one error type per module is sometimes OK, but I wouldn't recommend it as a general rule.</p>
+<p>Furthermore, at different levels of abstraction, the right level of detail for errors will change (we'll discuss this a bit more below). So, the right level of detail for error enums deep inside your implementation is probably different to the right level in the API.</p>
+<p>For example,</p>
+<pre><pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct MessageError {
+    kind: MessageErrorKind,
+    request: Request,
+}
+
+pub enum MessageErrorKind {
+    Network(IoError),
+    Parse(Option&lt;ProtocolVersion&gt;),
+}
+
+enum NetworkError {
+    NotConnected,
+    ConnectionReset,
+    // ...
+}
+
+enum ParseError {
+    Malformed(MalformedRespError),
+    MissingHeader(String),
+    UnknownField(String),
+}
+
+struct MalformedRespError {
+    // ...
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>In this example (over-engineered for such a small example, but imagine it as part of a larger program), <code>NetworkError</code> and <code>ParseError</code> are used in the implementation and are designed to contain maximal information for recovery. At the API boundary (if we can't recover), these are converted into a <code>MessageError</code>. This has is a struct since all errors will contain the request which caused the error, however, it still follows the 'enum taxonomy' approach rather than the 'single struct' approach since the error kinds hold different data. There should be enough information here for users of the API to recover or to report errors to the user.</p>
+<p>If designing based on how an error might be handled, you will want a different variant for each different recovery strategy. You might want a different enum for each recovery point, or you might just want a single enum per module or crate. For example,</p>
+<pre><pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub enum Retryable {
+    Network(IoError, Request),
+    Malformed(MalformedRespError),
+    NotRetryable(Box&lt;dyn Error&gt;),
+}
+
+pub enum Reportable {
+    MissingHeader(String),
+    UnknownField(String),
+    RetryFailed(Retryable),
+    NotReportable(Box&lt;dyn Error&gt;),
+}
+
+pub struct MalformedRespError {
+    // ...
+}
+<span class="boring">}
+</span></code></pre></pre>
+<h3 id="nested-errors"><a class="header" href="#nested-errors">Nested errors</a></h3>
+<p>One thing to be aware of in this approach is nesting of errors. It is fairly common to have variants which simply contain a source error, with a simple <code>From</code> impl to convert one error to another. This is made ultra-ergonomic by the <code>?</code> operator and attributes in the error handling libraries such as thiserror. I believe this idiom is <em>very</em> overused, to the point where you should consider it an anti-pattern unless you can prove otherwise for the specific case.</p>
+<p>In most cases where you create an error out of another error, there is additional context that is likely to be useful when recovering or debugging. If the error is simply nested, then this extra context is missed. Sometimes, if it seems like there is no extra useful context, then it might be a signal that the source error should be a variant of the other error, rather than nested in it. Alternatively, it might be that the level of abstraction should be changed.</p>
+<p>For example, you might have a <code>std::io::Error</code> nested in your enum as <code>MyError::Io(std::io::Error)</code>. It might be that there is more context to include, such as the action, filename, or request which triggered the IO error. In this case, <code>std::io::Error</code> comes from another crate, so it cannot be inlined. It might be that the level of abstraction should change, e.g., if the io error occurred when loading a config file from disk, it could be converted into a <code>MyError::Config(Path)</code>.</p>
+<p>To add more context to an error, use <code>.map_err(|e| ...)?</code> rather than just <code>?</code>. To change the abstraction level, you might be able to use a custom <code>From</code> impl, or you might need to use <code>map_err</code> with an explicit conversion method.</p>
+<p>Often, this pattern occurs when primarily considering logging errors rather than using errors for recovery. IMO, it is usually better to have fine-grained logging where the error occurs, rather than relying on logging errors at some central point. See the <a href="TODO">error handling</a> section for more discussion.</p>
+<p>Another issue of this approach is that it can lead to cycles of error types, e.g.,</p>
+<pre><pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub enum A {
+    // ...
+    B(Box&lt;B&gt;),
+}
+
+pub enum B {
+    Foo,
+    A(A),
+    Other(Box&lt;dyn Error&gt;),
+    // ...
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Here you might have a <code>B</code> inside an <code>A</code> inside a <code>B</code> or vice versa, or more deeply nested. When it comes to error recovery, and you pattern match on a <code>B</code> to find a <code>B::Foo</code>, you might miss some instances because the <code>B::Foo</code> is hidden inside a <code>B::A</code> variant. It could also be hidden inside the <code>B::Other</code> variant, either as a <code>B</code> or an <code>A</code>. This will make error recovery messy where it shouldn't be.</p>
+<p>The solution is to aggressively normalize errors in the <code>From</code> impls. However, the automatically generated impls won't do this for you, so that means writing them by hand.</p>
+<p>A corollary to this thinking on nested errors, is that <code>Error::source</code> is not a very useful method (IMO, it is only useful for logging errors and debugging).</p>
+<h2 id="single-struct-style"><a class="header" href="#single-struct-style">Single struct style</a></h2>
+<p>In this style, you use a single error struct. Each error stores mostly the same data and this is stored separately to the kind of error. Though you will likely still use an enum to represent the kind of error, this will likely be a C-like enum without embedded data. E.g.,</p>
+<pre><pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct MyError {
+    kind: ErrorKind,
+    source: Box&lt;dyn Error&gt;,
+    message: Option&lt;String&gt;,
+    request: Option&lt;Request&gt;,
+}
+
+pub enum ErrorKind {
+    Network,
+    MalformedResponse,
+    MissingHeader,
+    UnknownField,
+    // This lets us handle any kind of error without adding new error kinds.
+    Other,
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>This style is less common in the ecosystem. A prominent example is <a href="https://doc.rust-lang.org/nightly/std/io/struct.Error.html"><code>std::io::Error</code></a>, note that this error type is further optimised by using a packed representation on some platforms.</p>
+<p>The advantages of the single struct style are:</p>
+<ul>
+<li>it scales better when there are lots of errors (there is not a linear relationship between the number of errors and the number of error types),</li>
+<li>logging errors is simple,</li>
+<li>catching errors with downcasting is not too bad, and familiar from the trait object approach to error handling,</li>
+<li>it is easily customisable at the error site - you can add custom context without adding (or changing) an error kind,</li>
+<li>it requires less up-front design.</li>
+</ul>
+<p>You have a choice about what information to include in your error struct. Some generic information you might like to include are a backtrace for the error site, an optional source error, some error code or other domain-specific way to identify the error, and/or some representation of the program state (this last one is very project-specific). If you include a source error, then you might face similar issues to those described in the previous section on error nesting.</p>
+<p>You might also include an error message created at the error site. This is convenient and flexible, but has limitations in terms of reporting - it means the message cannot be customized (e.g., a GUI might want to format an error message very differently to a CLI) or localized.</p>
+<p>You will probably want to include the kind of error and use an <code>ErrorKind</code> enum for this. Error recovery is mostly impossible otherwise. You then have to decide how detailed to make the error kinds. More detail can help recovery but means more variants to keep track of and too much detail may be of little use (especially if your error struct has a pre-formatted message and/or other information).</p>
+<h2 id="trait-objects"><a class="header" href="#trait-objects">Trait objects</a></h2>
+<p>You may choose to you use a trait object as your error type, <code>Box&lt;dyn Error&gt;</code> is common. In this case, you still need concrete error types and the design decisions discussed above still apply. The difference is that at some point in your code, you convert the concrete error types into the trait object type. You could do this at the API boundary of your crate or at the source of the error or anywhere in between.</p>
+<p>There are some advantages of using a trait object error type:</p>
+<ul>
+<li>assuming you are using different error types for your module internals and your API, it saves you having a second set of error types for the API,</li>
+<li>it is statically much simpler to have a single type rather than a complex taxonomy of types,</li>
+<li>assuming users will not do 'deep' recovery, using the errors can be simpler too,
+<ul>
+<li>in particular, logging is more uniform and simpler,</li>
+</ul>
+</li>
+<li>'dynamic typing' of errors is more flexible and makes backwards compatibility and stability easier.</li>
+</ul>
+<h3 id="the-error-type"><a class="header" href="#the-error-type">The error type</a></h3>
+<p>Since <code>dyn Trait</code> types do not have a known size, they must be wrapped in a pointer. Most cases can use <code>Box</code> since that is most convenient. For systems with no allocator, or where micro-optimization of the error path is required, you can dedicate some static memory to holding an error and use a <code>&amp;'static</code> reference.</p>
+<p>The most common trait to use for the trait object is the <code>Error</code> trait from <a href="https://doc.rust-lang.org/nightly/core/error/trait.Error.html">the standard library</a>. This is part of core (as opposed to std) so can be used in no-std environments. An alternative is to use the <code>Error</code> trait from <a href="https://github.com/dtolnay/anyhow">Anyhow</a>, an error handling crate. This has the advantage that you don't need to use unstable features of the standard library. It has the same features as the standard library trait, but with a slightly different API.</p>
+<p>You could use your own error trait type. For ease of working with other code, you probably want it to have <code>std::error::Error</code> as a super-trait. However, I'm not aware of any advantage of doing this over using concrete error types.</p>
+<h3 id="exposing-additional-context"><a class="header" href="#exposing-additional-context">Exposing additional context</a></h3>
+<p>As described in <a href="../rust-errors/result-and-error.html">the Result and Error section</a>, you can dynamically provide additional context from an Error object. This should be well-documented in your API docs, including whether users can rely on the stability of the additional context.</p>
+<p>Useful context to provide may include:</p>
+<ul>
+<li>a backtrace,</li>
+<li>pre-formatted messages as strings for logging or reporting to users (though not that this precludes localization or other customisation of the message),</li>
+<li>error numbers or other domain-specific information.</li>
+</ul>
+<p>If using dynamic trait object errors, the errors are only useful for coarse-grained recovery, logging, or for direct reporting to users. If you want to enable fine-grained recovery, you are probably better off using concrete error types, rather than adding loads of context to error trait objects.</p>
+<h3 id="eliminating-concrete-error-types"><a class="header" href="#eliminating-concrete-error-types">Eliminating concrete error types</a></h3>
+<p>You can't really eliminate all concrete error types; due to Rust's nature, you have to have a concrete type which is abstracted into the trait object. However, you <em>can</em> avoid having to define your own concrete types in every module. While this is a reasonable approach, I think it is probably only the best approach in some very limited circumstances.</p>
+<p>How to do this depends on how much information you need to get from the <code>Error</code> trait object. If you want to provide some additional context, you'll need somewhere to store that context or the data required to create it. Some approaches:</p>
+<ul>
+<li>use an error number (since the integer types don't implement <code>Error</code>, you will need to wrap the number in a newtype struct, e.g., <code>pub struct ErrNum(u32);</code>),</li>
+<li>use a string (again, you'll need a newtype, or if you use Anyhow you can make use of the <code>anyhow!</code>/<code>bail!</code> macros),</li>
+<li>use a the single struct style described above with a very simple structure.</li>
+</ul>
+<h2 id="picking-an-approach"><a class="header" href="#picking-an-approach">Picking an approach</a></h2>
+<p>First of all, be aware that you are not making <em>one</em> choice per project. Different modules within your project can take different approaches, and you may want to take a different approach with the errors in your API vs those in the implementation. As well as different approaches in different parts of your project, you can mix approaches in one place, e.g., using concrete errors for some functions and trait object errors for others, or using a mix of enum style and single struct style errors.</p>
+<p>Ultimately the style of error type which is best depends on what kind of error handling you'll do with them (or expect your users to do with them, if you're writing a library). For error recovery at (or very close) to the error site, the error type doesn't matter much. If you are going to do fine-grained recovery at some distance from where the error is thrown (e.g., in a different module or crate), then the enum style is probably best. If you have a lot of errors in a library (and/or all errors are rather similar), or you expect the user to only do coarse-grained recovery (e.g., retry or communicate failure to the user), then the single struct style might be better. Where there can be effectively no recovery (or recovery is rare), and the intention is only to log the errors (or report the errors to a developer in some other way) then trait objects might be best.</p>
+<p>Common advice is to use concrete error types for libraries (because they give the user maximum flexibility) and trait object errors in applications (for simplicity). However, I think this is an over-simplification. The advice for libraries is good unless you are sure the user won't want to recover from errors (and note that recovery is possible using downcasting, it's just easier if there is more information). For applications, it might make sense to use concrete types to make recovery easier. For many applications, you're more likely to be able to recover from locally produced errors rather than those from upstream libraries. Being closer to the user also makes interactive recovery easier.</p>
+<p>For large, sophisticated applications, you probably want to use the enum style of concrete error, since this permits localisation (and other customisation) of error messages and helps with the modularity of APIs.</p>
+<h2 id="general-advice"><a class="header" href="#general-advice">General advice</a></h2>
+<h3 id="naming"><a class="header" href="#naming">Naming</a></h3>
+<p>Avoid over-using <code>Error</code> in names, it is easy to end up with it repeating endlessly. You might want to use it in your type names (unless it is clear from context), but you almost certainly don't need it in variant names. E.g., <code>MyError::Io</code> is better than <code>MyError::IoError</code>.</p>
+<p>It is fine to overload the standard library names like <code>Result</code> and <code>Error</code>, you can always use an explicit prefix to name the std ones, but you'll rarely need to.</p>
+<p>Avoid having an <code>errors</code> module in your crate. Keep your errors in the module they serve and consider having different errors in different modules. Using an <code>errors</code> module encourages thinking of errors as a per-project thing, rather than tailoring their level of detail to what is most appropriate.</p>
+<h3 id="stability"><a class="header" href="#stability">Stability</a></h3>
+<p>Your errors are part of your API and therefore must be considered when thinking about stability (e.g., how to bump the semver version). If you have dynamically typed aspects to your errors, then you need to decide (and document) whether these are part of your API or not (e.g., if you use a trait object error and permit downcasting to a concrete type, can the user rely on the concrete type remaining the same? What about provided additional context?).</p>
+<p>For error enums, you probably should mark all your enums as <code>#[non_exhaustive]</code> so that you can add variants backwards compatibly.</p>
+<h3 id="converting-errors-at-api-boundaries"><a class="header" href="#converting-errors-at-api-boundaries">Converting errors at API boundaries</a></h3>
+<p>It often makes sense to have different error types in your API to those in the implementation. That means that the latter must be converted to the former at API boundaries. Fortunately, this is usually ergonomic in Rust due to the implicit conversion in the <code>?</code> operator. You'll just need to implement the <code>From</code> trait for the types used in the API (or <code>Into</code> for the concrete types, if that is not possible).</p>
+<p>If you'll be converting error types at boundaries, you'll be converting to a more abstract (or at least less detailed) representation. That might mean converting to a trait object, or it might be a more suitable set of concrete types. If you're using trait objects internally, you probably don't need to convert, although you might change the trait used. As discussed above, you should choose the types most appropriate to your API. In particular, you should consider what kind of error recovery is possible (or reasonable) outside an abstraction boundary.</p>
+<p>Should you use the internal error as a 'source' error of the API error? Probably not, after all the internal error is part of your internals and not the API definition and therefore you probably don't want to expose it. If the expectation is that the only kind of error handling that will be done is to log the errors for debugging or crash reporting, etc. then it might make sense to include the source error. In this case, you should document that the source error is not part of the stable API and should not be used for error handling or relied upon (be prepared for users to rely on it anyway).</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../error-design/error-handling.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                            <a rel="next" href="../resources.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../error-design/error-handling.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                    <a rel="next" href="../resources.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+    </body>
+</html>

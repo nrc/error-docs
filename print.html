@@ -1,0 +1,720 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Error Handling in Rust</title>
+        <meta name="robots" content="noindex" />
+        <!-- Custom HTML head -->
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="intro.html">Introduction</a></li><li class="chapter-item expanded "><a href="rust-errors/index.html"><strong aria-hidden="true">1.</strong> Rust errors</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="rust-errors/result-and-error.html"><strong aria-hidden="true">1.1.</strong> Result and Error</a></li><li class="chapter-item expanded "><a href="rust-errors/panic.html"><strong aria-hidden="true">1.2.</strong> Panic</a></li><li class="chapter-item expanded "><a href="rust-errors/interop.html"><strong aria-hidden="true">1.3.</strong> Non-Rust errors and FFI</a></li><li class="chapter-item expanded "><a href="rust-errors/testing.html"><strong aria-hidden="true">1.4.</strong> Testing</a></li></ol></li><li class="chapter-item expanded "><a href="ecosystem.html"><strong aria-hidden="true">2.</strong> Rust's ecosystem</a></li><li class="chapter-item expanded "><a href="error-design/index.html"><strong aria-hidden="true">3.</strong> Error design</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="error-design/thinking-about-errors.html"><strong aria-hidden="true">3.1.</strong> Thinking about errors</a></li><li class="chapter-item expanded "><a href="error-design/error-handling.html"><strong aria-hidden="true">3.2.</strong> Error handling</a></li><li class="chapter-item expanded "><a href="error-design/error-type-design.html"><strong aria-hidden="true">3.3.</strong> Error type design</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">3.4.</strong> Case studies</div></li></ol></li><li class="chapter-item expanded "><a href="resources.html"><strong aria-hidden="true">4.</strong> Resources</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Error Handling in Rust</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="error-handling-in-rust"><a class="header" href="#error-handling-in-rust">Error Handling in Rust</a></h1>
+<p>A guide to error handling in Rust. The first half introduces Rust's language features and libraries for error handling. The second half should help you make <em>good</em> error handling code in your Rust programs.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="rust-errors"><a class="header" href="#rust-errors">Rust errors</a></h1>
+<p>Error handling gets special treatment in the language because when reading and writing code it is convenient to understand the happy path and the error path separately. Since errors are exceptional, we usually want to read code assuming errors aren't occurring, so making error handling very low-overhead is useful. Furthermore, by supporting error handling in the language and standard library, different libraries can handle errors without requiring loads of boilerplate for translating errors at library boundaries.</p>
+<p>Rust has two ways to represent errors: using the <code>Result</code> type and by panicking. The former is much more common and usually preferred.</p>
+<p>The <code>Result</code> type is a regular enum with <code>Ok(T)</code> and <code>Err(E)</code> variants. The former signalling normal program behaviour, and the latter signalling an error. Both variants contain regular Rust values and the programmer can freely choose the types for both. There is essentially no special mechanism here. A function returns just a regular value which can indicate either success or an error; the callers of a function must check which. Propagating an error simply means returning an error when an error is found. Rust does provide some special constructs to make this easy.</p>
+<p>Panicking is a special mechanism for 'immediately' stopping progress in a controlled manner. It is triggered by macros like <code>panic!</code> and functions like <code>unwrap</code>. It can also be triggered implicitly, e.g., when arithmetic overflows. Panicking is usually not handled by the programmer and terminates the current thread.</p>
+<p>The facilities for errors in the language and standard library are incomplete. There are several crates which can help with error handling and you'll probably want to use one.</p>
+<h2 id="result-and-error"><a class="header" href="#result-and-error"><a href="rust-errors/result-and-error.html">Result and Error</a></a></h2>
+<p>Covers the <code>Result</code> type and using it for error handling, the <code>?</code> operator, the <code>Error</code> trait, the <code>Try</code> trait, and other parts of Rust's machinery for handling errors as values.</p>
+<h2 id="panic"><a class="header" href="#panic"><a href="rust-errors/panic.html">Panic</a></a></h2>
+<p>Covers panicking, the panic macros, and panicking functions.</p>
+<h2 id="non-rust-errors"><a class="header" href="#non-rust-errors"><a href="rust-errors/interop.html">Non-Rust errors</a></a></h2>
+<p>How to deal with errors which originate outside of Rust, primarily when interoperating with other languages.</p>
+<h2 id="testing"><a class="header" href="#testing"><a href="rust-errors/testing.html">Testing</a></a></h2>
+<p>How to test code which uses <code>Result</code> or panics.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="result-and-error-1"><a class="header" href="#result-and-error-1">Result and Error</a></h1>
+<p>Using a <code>Result</code> is the primary way of handling errors in Rust. A <code>Result</code> is a generic enum in the standard library, it has two variants: <code>Ok</code> and <code>Err</code>, which indicate correct execution and incorrect execution, respectively. Both <code>Result</code> and its two variants are in the prelude, so you don't need to explicitly import them and you don't have to write <code>Result::Ok</code> as you would for most enums.</p>
+<p>Both variants take a single argument which can be any type. You'll usually see <code>Result&lt;T, E&gt;</code> where <code>T</code> is the type of value returned in <code>Ok</code> and <code>E</code> is the error type returned in <code>Err</code>. It's fairly common for modules to use a single error type for the whole module and to define an alias like <code>pub type Result&lt;T&gt; = std::result::Result&lt;T, MyError&gt;;</code>. In that case, you'll see <code>Result&lt;T&gt;</code> as the type, where <code>MyError</code> is an implicit error type.</p>
+<p>Creating a <code>Result</code> value is as simple as using the variant as a constructor, just like other enums. E.g, for a <code>Result&lt;i32, i32&gt;</code> (a <code>Result</code> with an <code>i32</code> payload and an <code>i32</code> error code), you would use <code>Ok(42)</code> and <code>Err(2)</code> to create <code>Result</code> values.</p>
+<p>When receiving a <code>Result</code> object, you can address the ok and error cases by using a <code>match</code> expression, e.g.,</p>
+<pre><code>fn foo(r: Result&lt;String, MyError&gt;) {
+    match r {
+        Ok(s) =&gt; println!(&quot;foo got a string: {s}&quot;),
+        Err(e) =&gt; println!(&quot;an error occurred: {e}&quot;),
+    }
+}
+</code></pre>
+<p>There are more ergonomic ways to handle <code>Result</code>s too. There are a whole load of combinator methods on <code>Result</code>. See the <a href="https://doc.rust-lang.org/stable/std/result/enum.Result.html#implementations">docs</a> for details. There are way too many to cover here, but as an example, <code>map</code> takes a function and applies it to the payload of the result if the result is <code>Ok</code> and does nothing if it is <code>Err</code>, e.g.,</p>
+<pre><code>fn foo(r: Result&lt;i32, MyError&gt;) -&gt; Result&lt;String, MyError&gt; {
+    r.map(|i| i.to_string())
+}
+</code></pre>
+<h3 id="the--operator"><a class="header" href="#the--operator">The <code>?</code> operator</a></h3>
+<p>Applying <code>?</code> to a result will either unwrap the payload, if the result is an <code>Ok</code>, or immediately return the error if it is an <code>Err</code>. E.g.,</p>
+<pre><code>fn foo(r: Result&lt;i32, MyError&gt;) -&gt; Result&lt;String, MyError&gt; {
+    let i = r?; // Unwraps Ok, returns an Err
+    Ok(i.to_string())
+}
+</code></pre>
+<p>The above code does the same as the previous example. In this case, the <code>map</code> code is more idiomatic, but if we had a lot of work to do with <code>i</code>, then using <code>?</code> would be better. Note that the type of <code>i</code> is <code>i32</code> in both examples.</p>
+<p>The <code>?</code> operator can be used with other types too, notably <code>Option</code>. You can also use it with your own types, see the discussion of the <code>Try</code> trait, below.</p>
+<p><code>?</code> does not have to just return the error type directly. It can convert the error type into another by calling <code>From::from</code>. So if you have two error types: <code>Error1</code> and <code>Error2</code> and <code>Error2</code> implements <code>From&lt;Error1&gt;</code>, then the following will work (note the different error types in the signature):</p>
+<pre><code>fn foo(r: Result&lt;i32, Error1&gt;) -&gt; Result&lt;String, Error2&gt; {
+    let i = r?;
+    // ...
+}
+</code></pre>
+<p>This implicit conversion is relied on for several patterns of error handling we'll see in later chapters.</p>
+<h3 id="try-blocks"><a class="header" href="#try-blocks">Try blocks</a></h3>
+<p>Try blocks are an unstable language feature (<code>#![feature(try_blocks)]</code>). The syntax is <code>try { ... }</code> where the block contains code like any other block. The difference compared to a regular block, is that a try block introduces a scope for the question mark operator. If you use <code>?</code> inside a try block, it will propagate the error to the result of the block immediately, rather than returning the error from the current function.</p>
+<p>For example,</p>
+<pre><pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let result: Result&lt;i32, ParseIntError&gt; = try {
+    &quot;1&quot;.parse::&lt;i32&gt;()?
+        + &quot;foo&quot;.parse::&lt;i32&gt;()?
+        + &quot;3&quot;.parse::&lt;i32&gt;()?
+};
+<span class="boring">}
+</span></code></pre></pre>
+<p>At runtime, execution will stop after the second <code>parse</code> call and the value of <code>result</code> will be the error from that call. Execution will continue after the <code>let</code> statement, without returning.</p>
+<h2 id="option"><a class="header" href="#option"><code>Option</code></a></h2>
+<p><code>Option</code> is similar to <code>Result</code> in that it is a very common, two-variant enum type with a payload type <code>Some</code> (compare to <code>Result::Ok</code>). The difference is that <code>Option::None</code> (compared with <code>Result::Err</code>) does not carry a payload. It is, therefore, analogous to <code>Result&lt;T, ()&gt;</code> and there are many methods for converting between <code>Option</code> and <code>Result</code>. <code>?</code> works with <code>Option</code> just like <code>Result</code>.</p>
+<p>The intended meaning of the types, however, is different. <code>Result</code> represents a value which has either been correctly computed or where an error occurred in its computation. <code>Option</code> represents a value which may or may not be present. Generally, <code>Option</code> should not be used for error handling. You may use or come across types like <code>Result&lt;Option&lt;i32&gt;, MyError&gt;</code>, this type might be returned where the computation is fallible, and if succeeds it will return either an <code>i32</code> or nothing (but importantly, returning nothing is not an error).</p>
+<h2 id="the-error-trait"><a class="header" href="#the-error-trait">The <code>Error</code> trait</a></h2>
+<p>The error trait, <a href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html"><code>std::error::Error</code></a>, is a trait for error types. There is no hard requirement, you can use a type in a <code>Result</code> and with <code>?</code> without implementing <code>Error</code>. It has some useful functionality, and it means you can use dynamic error handling using <code>dyn Error</code> types. Generally you <em>should</em> implement <code>Error</code> for your error types (there are no required methods, so doing so is easy); most error libraries will do this for you.</p>
+<h3 id="provided-functionality"><a class="header" href="#provided-functionality">Provided functionality</a></h3>
+<p><code>Display</code> is a super-trait of <code>Error</code> which means that you can always convert an error into a user-facing string. Most error libraries let you derive the <code>Display</code> impl using an attribute and a custom format string.</p>
+<p>The <code>Error</code> trait has an experimental mechanism for attaching and retrieving arbitrary data to/from errors. This mechanism is type-driven: you provide and request data based on its type. You use <code>request</code> methods (e.g., <a href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html#method.request_ref"><code>request_ref</code></a>) to request data and the <a href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html#method.provide"><code>provide</code></a> method to provide data, either by value or by reference. You can use this mechanism to attach extra context to your errors in a uniform way.</p>
+<p>A common usage of this mechanism is for backtraces. A backtrace is a record of the call stack when an error occurs. It has type <a href="https://doc.rust-lang.org/nightly/std/backtrace/struct.Backtrace.html"><code>Backtrace</code></a> which has various methods for iterating over the backtrace and capturing the backtrace when an error occurs. To get a backtrace, use the <code>Error::request_ref</code> method, e.g., <code>if let Some(trace) = err.request_ref::&lt;Backtrace&gt;() { ... }</code>.</p>
+<p>For an error to support backtraces, it must capture a backtrace when the error occurs and store it as a field. The error must then override the <code>Error::provide</code> method to provide the backtrace if it is requested. For more details on this mechanism see the <a href="https://doc.rust-lang.org/nightly/std/any/index.html#provider-and-demand">docs</a> of the <code>Provider</code> trait which is used behind the scenes to implement it. (Note that there used to be a specific method for getting a backtrace from an error and this has been replaced by the generic mechanism described here).</p>
+<p><a href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html#method.source"><code>Error::source</code></a> is a way to access a lower-level cause of an error. For example, if your error type is an enum <code>MyError</code> with a variant <code>Io(std::io::Error)</code>, then you could implement <code>source</code> to return the nested <code>io::Error</code>. With deep nesting, you can imagine a chain of these source errors, and <code>Error</code> provides a <a href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html#method.sources"><code>sources</code></a> method<sup class="footnote-reference"><a href="#1">1</a></sup> to get an iterator over this chain of source errors.</p>
+<div class="footnote-definition" id="1"><sup class="footnote-definition-label">1</sup>
+<p>This and some other methods are implemented on <code>dyn Error</code>, rather than in the trait itself. That makes these methods usable on trait objects (which wouldn't be possible otherwise due to generics, etc.), but means they are <em>only</em> usable on trait objects. That reflects the expected use of these methods with the dynamic style of error handling (see the following section).</p>
+</div>
+<h3 id="dynamic-error-handling"><a class="header" href="#dynamic-error-handling">Dynamic error handling</a></h3>
+<p>When using <code>Result</code> you can specify the concrete error type, or you can use a trait object, e.g., <code>Result&lt;T, Box&lt;dyn Error&gt;&gt;</code>. We'll talk about the pros and cons of these approaches in later chapters on designing error handling, for now we'll just explain how it works.</p>
+<p>To make this work, you implement <code>Error</code> for your concrete error types, and ensure they don't have any borrowed data (i.e., they have a <code>'static</code> bound). For ease of use, you'll want to provide a constructor which returns the abstract type (e.g., <code>Box&lt;dyn Error&gt;</code>) rather than the concrete type. Creating and propagating errors works the same way as using concrete error types.</p>
+<p>Handling errors might be possible using the abstract type only (using the <code>Display</code> impl, <code>source</code> and <code>sources</code> methods, and any other context), or you can downcast the error trait object to a concrete type (using one of the <code>downcast</code> methods). Usually, there are many possibilities for the concrete type of the error, you can either try downcasting to each possible type (the methods return <code>Option</code> or <code>Result</code> which facilitates this) or use the <code>is</code> method to test for the concrete type. This technique is an alternative to the common <code>match</code> destructuring of concrete errors.</p>
+<h3 id="evolution-of-the-error-trait"><a class="header" href="#evolution-of-the-error-trait">Evolution of the <code>Error</code> trait</a></h3>
+<p>Error handling in general, and the <code>Error</code> trait in particular, have been evolving for a long time and are still in flux. Much of what is described above is nightly only and many unstable features have changed, and several stable ones deprecated. If you're targetting stable Rust, it is best to mostly avoid using the <code>Error</code> trait and instead use an ecosystem alternative like <a href="https://github.com/dtolnay/anyhow">Anyhow</a>. You should still implement <code>Error</code> though, since the trait itself is stable and this facilitates users of your code to choose the dynamic path if they want. You should also be conscious when reading docs/StackOverflow/blog posts that things may have changed.</p>
+<h2 id="the-try-trait"><a class="header" href="#the-try-trait">The <code>Try</code> trait</a></h2>
+<p>The <code>?</code> operator and try blocks, and their semantics are not hard-wired to <code>Result</code> and <code>Option</code>. They are tied to the <a href="https://doc.rust-lang.org/nightly/std/ops/trait.Try.html"><code>Try</code></a> trait, which means they can work with any type, including a custom alternative to <code>Result</code>. We don't recommend using your own custom <code>Result</code>, we have in fact never found a good use case (even when implementing an error handling library or in other advanced cases) and it will make your code much less compatible with the ecosystem. Probably, the reason you might want to implement the <code>Try</code> trait is for non-error related types which you want to support ergonomic short-circuiting behaviour using <code>?</code> (e.g., <code>Poll</code>; although because of the implied semantics of error handling around <code>?</code>, this might also be a bad idea). Anyway, it's a kinda complex trait and we're not going to dive into it here, see the docs if you're interested.</p>
+<h2 id="deprecated-stuff"><a class="header" href="#deprecated-stuff">Deprecated stuff</a></h2>
+<p>There is a deprecated macro, <code>try</code>, which does basically the same thing as <code>?</code>. It only works with <code>Result</code> and in editions since 2018, you have to use <code>r#try</code> syntax to name it. It is deprecated and there is no reason to use it rather than <code>?</code>; you might come across it in old code though.</p>
+<p>There are some deprecated methods on the <code>Error</code> trait. Again, there is no reason to use these, but you might see them in older code. <code>Error::description</code> has been replaced by using a <code>Display</code> impl. <code>Error::cause</code> has been replaced by <code>Error:source</code>, which has an additional <code>'static</code> bound on the return type (which allows it to be downcast to a concrete error type).</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="panic-1"><a class="header" href="#panic-1">Panic</a></h1>
+<p>Panicking is a mechanism for crashing a thread in an orderly way. Unlike <code>Result</code>-based errors or exceptions in other languages, panics are not intended to be caught or handled.</p>
+<p>By default, panicking terminates the <em>current thread</em> by <em>unwinding</em> the stack, executing all destructors as it goes. This means that the program can be left in a consistent state and the rest of the program can carry on executing.</p>
+<p>You can also configure your program (by adding <code>panic = 'abort'</code> to the appropriate profile in your <a href="https://doc.rust-lang.org/book/ch09-01-unrecoverable-errors-with-panic.html#unwinding-the-stack-or-aborting-in-response-to-a-panic">Cargo.toml</a>) to abort on panic. In this case, the whole program exits immediately when a panic occurs. Using abort-on-panic will make your program slightly more performant (because stack unwinding doesn't need to be considered, similar to using C++ without exceptions). However, it can make your program less robust (a single thread cannot crash without crashing the whole program) and it means destructors won't be run on panic.</p>
+<p>Even in the default unwind-on-panic configuration, causing a panic while the thread is already panicking will cause the whole program to abort. You must therefore be very careful that destructors cannot panic under any circumstance. You can check if the current thread is panicking by using the <code>std::thread::panicking</code> function.</p>
+<p>When a panic occurs, a <em>panic hook</em> function is called. By default, this prints a message and possibly a backtrace to stderr, but it can be customised. See the docs for <a href="https://doc.rust-lang.org/nightly/std/panic/index.html"><code>std::panic</code></a> for more information. The panic hook is called whether the panic will unwind or abort.</p>
+<p>In a no-std crate, you'll need to set your own panic handler. Use the <a href="https://doc.rust-lang.org/nomicon/panic-handler.html"><code>#[panic_handler]</code></a> attribute and see the docs for <a href="https://doc.rust-lang.org/nightly/core/panicking/index.html"><code>core::panicking</code></a> for more info.</p>
+<p>For more details on how panicking is implemented, see this <a href="https://www.ralfj.de/blog/2019/11/25/how-to-panic-in-rust.html">blog post</a>; for more on if and when you should panic (particularly using <code>unwrap</code> see <a href="https://blog.burntsushi.net/unwrap/">this one</a>.</p>
+<h2 id="triggering-panics"><a class="header" href="#triggering-panics">Triggering panics</a></h2>
+<p>Panics can be triggered in all sorts of ways. The most obvious way is using the <code>panic!</code> macro, that unconditionally starts a panic when it is encountered. The <code>todo!</code>, <code>unimplemented!</code>, and <code>unreachable!</code> macros all do the same thing, but with different implications for human readers (the <code>unreachable_unchecked</code> macro does not panic; it is an indication to the compiler that its location is never reachable, and encountering it is undefined behaviour). <code>panic_any</code> is a function similar to the <code>panic!</code> macro which lets you panic with an arbitrary object, rather than a string message.</p>
+<p>The assert and debug_assert macros panic if their condition is not met. E.g., <code>debug_assert_eq</code> panics (only in debug builds) if it's arguments are not equal.</p>
+<p>The functions <code>unwrap</code> and <code>expect</code> on <code>Result</code> or <code>Option</code> panic if the receiver is <code>Err</code> or <code>None</code> (respectively). They can be thought of as a bridge between the worlds of errors using <code>Result</code> and panicing.</p>
+<p>There are many places where panicking is implicit. In debug builds, arithmetic overflow/underflow causes a panic. Indexing (e.g., <code>some_slice[42]</code>) out of bounds (or for a key which does not exist) causes a panic. In general, since panicking is not part of the type system or annotated on function signatures, you must assume that any function call might cause a panic, unless you can prove otherwise.</p>
+<h2 id="programming-with-panics"><a class="header" href="#programming-with-panics">Programming with panics</a></h2>
+<p>You should not use panicking for general error handling. If you follow this advice, then most programmers won't have to worry too much about panics, in general, it just works. Specifically, you should only use panics for things which (in theory) can't happen. That is, every time a panic does happen, it is a bug in the program. You'll need to take some care to avoid <code>unwrap</code>ing things unless you're really sure it's impossible to be <code>Err</code>/<code>None</code>. Likewise, if you're unsure that an index or key is in-bounds, use <code>get</code> rather than indexing.</p>
+<p>One thing you might have to consider is the state of other threads. Panicking terminates a thread so you don't need to worry about data which is only referenced from the panicked thread. But data which is referenced from multiple threads could be corrupted (note that this data must be <code>Sync</code>). You can use destructors to ensure that shared data is left in a consistent state since these will be run on panic. However, you cannot rely on destructors being run in all circumstances (e.g., consider an object referred to by an <code>Arc</code> from another thread).</p>
+<p>An example of a feature for ensuring consistency in the face of a panicking thread is <a href="https://doc.rust-lang.org/nightly/std/sync/struct.Mutex.html#poisoning">mutex lock poisoning</a>. When you lock a mutex, you get a <code>Result</code> which will be an <code>Err</code> if another thread panicked while the lock was held. If you <code>unwrap</code> this result, then you essentially propagate the panic to the current thread (which is a fine approach). Alternatively, you could try to recover by fixing any inconsistent state.</p>
+<p>If you are writing unsafe code, then you must ensure that your code is <a href="https://doc.rust-lang.org/nomicon/exception-safety.html">exception safe</a>. This means that any safety invariants your code relies on are re-established at any point where the program might panic. The <a href="https://doc.rust-lang.org/nightly/std/panic/trait.UnwindSafe.html"><code>UnwindSafe</code></a> trait is used to mark types as being unwind-safe, that is the type can be used after a panic has occurred and the unwinding has been caught. It is used with <code>catch_unwind</code>, which is used to catch panics at FFI boundaries (see below). However, the concept has not gained a wide following in the Rust community, so it is probably unwise to rely on it.</p>
+<p>You might want to ensure that your program (or parts of your program) cannot panic. However, this is generally not a good idea. If you don't want to have unwinding, then you can abort on panic. However, wanting your program to be panic free is essentially wanting your program to be bug free (at least for several classes of bugs), which is a big ask! It is usually better for a bug to cause a panic rather than to cause incorrect execution. In some circumstances, you might be able to check every arithmetic and indexing operation, handle every error, and never <code>unwrap</code> an <code>Option</code>, but for most programs, this is more of a burden than it is worthwhile. There are some crates (<a href="https://github.com/Kixunil/dont_panic">dont-panic</a> and <a href="https://github.com/dtolnay/no-panic">no_panic</a>) which can help with this, but they rely on causing a linking error, so only work in some circumstances, can depend on specific optimisations, and can't do anything smart like prove that a panic trigger is unreachable.</p>
+<h3 id="is-panicking-safe"><a class="header" href="#is-panicking-safe">Is panicking safe?</a></h3>
+<p>Given that panicking feels like a crash and crashes are often exploitable, it is often asked if panicking is safe. There are many levels to this question! Importantly, panicking cannot cause memory unsafety, so panicking is safe in the sense of Rust's <code>unsafe</code> keyword. Similarly, panicking is never exploitable. Since panicking runs destructors, panicking is also fairly safe in a colloquial sense in the sense that it can't leave your program in an inconsistent state (although you still have to take care to avoid bugs here, as mentioned above). However, if panicking causes your whole program to crash (due to a double panic, propagating panics to other threads, or abort-on-panic), then this can be a poor user experience.</p>
+<h3 id="interop-and-catching-panics"><a class="header" href="#interop-and-catching-panics">Interop and catching panics</a></h3>
+<p>Panics must not cross the FFI boundary. That means that you must catch Rust panics using <a href="https://doc.rust-lang.org/stable/std/panic/fn.catch_unwind.html"><code>catch_unwind</code></a>. See the <a href="rust-errors/interop.html">interop chapter</a> for details.</p>
+<h2 id="backtraces"><a class="header" href="#backtraces">Backtraces</a></h2>
+<p>When a panic happens, Rust can print a backtrace of the stack frames which led to the panic (i.e., all the functions which were being called when the panic happened). To show the backtrace, set the <code>RUST_BACKTRACE</code> environment variable to <code>1</code> (or <code>full</code> if you want a verbose backtrace) when you run your program. You can prevent backtraces being printed (or change their behaviour) by setting your own <a href="https://doc.rust-lang.org/nightly/std/panic/fn.set_hook.html">panic hook</a>.</p>
+<p>You can capture and manipulate backtraces programmatically using <a href="https://doc.rust-lang.org/nightly/std/backtrace/index.html"><code>std::backtrace</code></a>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="non-rust-errors-1"><a class="header" href="#non-rust-errors-1">Non-Rust errors</a></h1>
+<p>If you interoperate with other languages or interact with the operating system in certain ways (usually this means avoiding Rust's existing abstractions in the standard library or crates), then you will need to deal with errors which are not part of Rust's error system. These fall into two categories: error values and exceptions. In both cases, you must convert these errors into Rust errors, this chapter will explain how, as well as going in the other direction - handling Rust errors at the FFI boundary.</p>
+<h2 id="c-errors"><a class="header" href="#c-errors">C errors</a></h2>
+<p>C has no standardized way to handle errors. Different libraries will indicate errors in different ways, e.g., by returning an error number, null pointer, sentinel value, etc. They may also set a global variable to give more error context. At the FFI boundary you must convert these different kinds of errors into Rust errors.</p>
+<p>Generally, for FFI you will have a -sys crate which has simple bindings for foreign functions in Rust. This crate will have the native error handling. Then you will have a crate which wraps these function bindings in a Rust library which provides a safe, idiomatic Rust API. It is in this crate that errors should be translated into Rust errors, usually <code>Result</code>s. Exactly how you do this depends on the level of abstraction your crate is targetting. You may have a direct representation of the C error in your Rust error, e.g., return <code>Result&lt;T, ErrNo&gt;</code> where <code>ErrNo</code> is a newtype wrapping the integer type or an alias of it. At the other extreme, you might use an error type like any other Rust crate. In between, you might have a typical Rust error type and embed a representation of the underlying C error inside the Rust error. Essentially, dealing errors are 'just data' in both C and Rust, so translating errors at the FFI boundary is similar to handling any other data at the boundary.</p>
+<h2 id="os-errors"><a class="header" href="#os-errors">OS errors</a></h2>
+<p>You might interact with the operating system via the standard library or a crate, at the level of an API or syscalls. In these cases you might need direct access to the operating system's errors. In the standard library, these are available from <code>io::Error</code>.</p>
+<p>You can use <code>std::io::Error::raw_os_error</code> and <code>std::io::Error::from_raw_os_error</code> to convert between a Rust error and an operating system's error number. Some operating system operations do not return an error, but instead return some indication of an error (such as a null pointer) and make more information about the error available in some other way. <code>std::io::Error::last_os_error</code> provides a way to access that information as a Rust error. You must be careful to use it immediately after producing the error; other standard library functions or accessing the operating system outside of the standard library might change or reset the error information.</p>
+<h2 id="exceptions-and-panics"><a class="header" href="#exceptions-and-panics">Exceptions and panics</a></h2>
+<p>Languages often provide mechanisms for error handling which are not simple return values. Exceptions in many languages and Rust panics are examples. These mechanisms need special handling at the FFI boundary. In general, anything which involves stack unwinding or non-local control flow (that is, where execution jumps from one function to another) must not cross the FFI boundary. That means that on the Rust side, panics must not unwind through a foreign function (i.e., panics must be <em>caught</em>); if they do, the process will abort. For other languages, exceptions and similar must not jump into or 'over' (on the stack) Rust code; this will cause undefined behaviour.</p>
+<p>If Rust code might panic (and most Rust code can) and is called by foreign code, then you should catch any panics using the <a href="https://doc.rust-lang.org/stable/std/panic/fn.catch_unwind.html"><code>catch_unwind</code></a> function. You may also find <code>std::panic::resume_unwind</code> and <code>std::thread::panicking</code> useful.</p>
+<p>There is work in progress to permit unwinding from Rust into C code using the <code>c_unwind</code> (and other <code>_unwind</code>) APIs. However, at the time of writing this work is not fully implemented and is unstable. See <a href="https://github.com/rust-lang/rfcs/blob/master/text/2945-c-unwind-abi.md">RFC 2945</a> for more details.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="testing-1"><a class="header" href="#testing-1">Testing</a></h1>
+<p>This chapter will cover the intersection of error handling and testing. We'll cover how to handle errors which occur in tests, both where an error should indicate test failure and where we want to test that an error does occur.</p>
+<p>You should ensure that your project has good test coverage of error paths as well as testing the success path. This might mean that errors are propagated correctly, that your code recovers from errors in the right way, or that errors are reported in a certain way. It is particularly important to test error recovery, since this can lead to program states (often many complex states) which are not encountered in normal execution and might occur only rarely when the program is used.</p>
+<h2 id="handling-errors-in-tests"><a class="header" href="#handling-errors-in-tests">Handling errors in tests</a></h2>
+<p>In this section we'll assume a test should pass if there is no error and the test should fail if there is any error.</p>
+<p>A basic Rust unit test fails if the function panics and passes if it does not. So, if you use only panics for error handling, then things are very easy! However, if (more likely) you have at least some <code>Result</code>s to handle, you have to do a bit more work. The traditional approach is to panic if there is an error, using <code>unwrap</code>. Since 2018, you can return a <code>Result</code> from a test. In this case the test fails if the test returns an error or panics, so you can use the <code>?</code> operator to fail a test on error. To do this simply add <code>-&gt; Result&lt;(), E&gt;</code> (for any error type <code>E</code>) to the signature of the test.</p>
+<h2 id="testing-the-kind-of-errors"><a class="header" href="#testing-the-kind-of-errors">Testing the kind of errors</a></h2>
+<p>To properly test your program, you should test the errors which your functions throw. Exactly what to test is an interesting question: for internal functions you should test what is needed, this might mean just that any error is thrown (for certain inputs). If you rely on certain errors being thrown (e.g., for recovery) then you should test that a specific error is thrown or that the error contains correct information. Likewise, for testing public functions, you should test what your API guarantees (do you guarantee certain error types under some circumstances? Or only that <em>an</em> error is thrown?).</p>
+<p>To require that a test panics, you can use the <code>#[should_panic]</code> attribute. You can use an <code>expected</code> parameter to test for a particular message when panicking, e.g., <code>#[should_panic(expected = &quot;internal compiler error&quot;)]</code>.</p>
+<p>You could use <code>#[should_panic]</code> with <code>unwrap</code> to test that an error is thrown, but it is a bad idea: you could easily pass the test by some other part of the code panicking before the error should occur.</p>
+<p>The better way to test for the presence of an error is to <code>assert</code> <code>Result::is_err</code> is true. If there are more properties of the error to check, then you can use <code>Result::is_err_and</code> for simple checks or <code>Result::unwrap_err</code> where there is more code. For example,</p>
+<pre><pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[test]
+fn test_for_errors() {
+    assert!(should_throw_any_error().is_err());
+    assert!(should_throw_not_found().is_err_and(|e| e.kind() == ErrorKind::NotFound));
+
+    let e = should_throw_error_foo().unwrap_err();
+    assert_eq!(e.kind(), ErrorKind::Foo);
+    assert_eq!(e.err_no(), 42);
+    assert_eq!(e.inner().kind(), ErrorKind::NotFound);
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Exactly how to test properties of the error thrown will depend on what kind of error types you are using and what guarantees you are testing. You may be able to call methods on the error and assert properties of the results (as shown in the example above). If you want to test the type of the error then you'll need to either downcast (if using trait object error types) or match (or use <code>if let</code>; if using enum error types). In the latter case, the <code>assert_matches</code> macro can be useful - you can test that an error is thrown and the exact type of the error in one go, e.g., <code>assert_mactches!(should_throw_not_found(), Err(MyError::NotFound));</code>.</p>
+<h2 id="testing-error-recovery-and-handling"><a class="header" href="#testing-error-recovery-and-handling">Testing error recovery and handling</a></h2>
+<p>It is important to test the error handling/recovery paths, however, with idiomatic error handling this is not trivial because it is not idiomatic to pass <code>Result</code>s into a function, but rather to test the result and only pass in a value if the result is <code>Ok</code>. This means that the only way to inject errors when testing is to have functions return an error. Unless you have functions which take a closure, then the best way to do this is by using mock objects.</p>
+<p>Mocking in Rust is usually ad hoc and lightweight. The common pattern is that you have a generic function or function which takes a trait object and you pass a custom mock object which implements the required trait bounds. For example,</p>
+<pre><pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Function to test
+fn process_something(thing: impl Thing) -&gt; Result&lt;i32, MyError&gt; {
+    // ...
+}
+
+trait Thing {
+    fn process(&amp;self, processor: Proc) -&gt; Result&lt;f32, MyError&gt;;
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    // Mock object
+    struct AlwaysZero;
+
+    impl Thing  for AlwaysZero {
+        fn process(&amp;self, processor: Proc) -&gt; Result&lt;f32, MyError&gt; {
+            Ok(0.0)
+        }
+    }
+
+    // Mock object
+    struct AlwaysErr;
+
+    impl Thing for AlwaysErr {
+        fn process(&amp;self, processor: Proc) -&gt; Result&lt;f32, MyError&gt; {
+            Err(MyError::IoError)
+        }
+    }
+
+    #[test]
+    fn process_zero() -&gt; Result&lt;(), MyError&gt; {
+        assert_eq!(process_something(AlwaysZero)?, 0);
+        Ok(())
+    }
+
+    #[test]
+    fn process_err() -&gt; Result&lt;(), MyError&gt; {
+        // Note that we test the specific error returned but not the contents of
+        // that error. This should match the guarantees/expectations of `process_something`.
+        assert_matches!(process_something(AlwaysErr), Err(MyError::ProcessError(_)));
+        Ok(())
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>For more sophisticated mocking, there are several mocking libraries available. <a href="https://docs.rs/mockall/latest/mockall/">Mockall</a> is the most popular. These can save a lot of boilerplate, especially when you need mock objects to do more than always return a single error.</p>
+<h2 id="testing-error-reporting"><a class="header" href="#testing-error-reporting">Testing error reporting</a></h2>
+<p>For applications with sophisticated error reporting (e.g., a compiler), you'll want to test that error reporting output, ensuring that the messages which are expected and other data such as the input which caused the error, information to locate that input, error numbers, etc.</p>
+<p>How to test this will vary by application, you might be able to unit test the output or you might prefer to use integration tests. You'll want to implement some kind of framework to help these tests so that you're not doing loads of repetitive string comparisons. It's important not to test too much or your test suite will be fragile. An example of such tests are rustc's <a href="https://rustc-dev-guide.rust-lang.org/tests/ui.html">UI tests</a>.</p>
+<h2 id="benchmarking"><a class="header" href="#benchmarking">Benchmarking</a></h2>
+<p>If errors can occur in real life, then you should probably consider errors when benchmarking. You might want to separately benchmark what happens in the pure success and the error cases. You might also want a benchmark where errors occur randomly with realistic (or greater than realistic) frequency. This will require some engineering which is similar to mocking, but does the real thing in some cases and mocks an error occasionally.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="the-errors-ecosystem"><a class="header" href="#the-errors-ecosystem">The errors ecosystem</a></h1>
+<h2 id="good-crates"><a class="header" href="#good-crates">Good crates</a></h2>
+<p>The following crates are commonly used and recommended.</p>
+<h3 id="thiserror"><a class="header" href="#thiserror">ThisError</a></h3>
+<p>A powerful <code>derive(Error)</code> <a href="https://github.com/dtolnay/thiserror">macro</a>. Implements <code>Error</code> and <code>Display</code> for your error types, including convenient syntax for source errors, backtraces, and conversions.</p>
+<h3 id="anyhow"><a class="header" href="#anyhow">Anyhow</a></h3>
+<p>A <a href="https://github.com/dtolnay/anyhow">crate</a> for working with trait object error types. Extends the features of the standard library's <code>Error</code> trait. However, most of Anyhow's features have been added to std, so you might not need Anyhow any more (it does have the advantage that it doesn't require unstable features, so can be used with a stable toolchain).</p>
+<h3 id="snafu"><a class="header" href="#snafu">Snafu</a></h3>
+<p><a href="https://github.com/shepmaster/snafu">Supports</a> deriving error handling functionality for error types (including the single struct style, not just enum style errors), macros for throwing errors, and using strings as errors.</p>
+<h3 id="error-stack"><a class="header" href="#error-stack">Error Stack</a></h3>
+<p>An alternative and extension to this-error, <a href="https://github.com/hashintel/hash/tree/main/libs/error-stack">error-stack</a> helps define your error types, but also adds support for better stacks of errors with arbitrary added attachments and information about how the error is produced and propagated. It also has sophisticated error reporting and formatting.</p>
+<h3 id="error-reporting-crates"><a class="header" href="#error-reporting-crates">Error reporting crates</a></h3>
+<p>These crates are for reporting errors to the user in pretty ways. They are particularly useful for reporting errors in input text (e.g., source code) and are somewhat inspired by rustc's error reporting style.</p>
+<p><a href="https://github.com/yaahc/eyre">Eyre</a> is a fork of Anyhow with enhanced reporting facilities. The following crates are just for reporting and work with other error libraries if required:</p>
+<ul>
+<li><a href="https://github.com/zkat/miette">miette</a></li>
+<li><a href="https://github.com/zesterer/ariadne">ariadne</a></li>
+<li><a href="https://github.com/brendanzab/codespan">codespan</a></li>
+</ul>
+<h2 id="historic-crates"><a class="header" href="#historic-crates">Historic crates</a></h2>
+<p>As Rust's error handling story has evolved, many error handling libraries have come and gone. The following were influential in their time, but there are now better alternatives (sometimes including just the support in std). You might still see these crates used in historic documentation, but we wouldn't recommend using them any more.</p>
+<ul>
+<li><a href="https://github.com/rust-lang-deprecated/error-chain">error-chain</a> (support is now in std)</li>
+<li><a href="https://github.com/rust-lang-deprecated/failure">failure</a> (support is now in std)</li>
+<li><a href="https://github.com/withoutboats/fehler">fehler</a> <a href="https://without.boats/blog/failure-to-fehler/">blog post</a> (an experiment which is no longer maintained)</li>
+<li><a href="https://gitlab.com/torkleyy/err-derive">err-derive</a> (support is built in to the recommended crates above)</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="error-design"><a class="header" href="#error-design">Error design</a></h1>
+<p>How should you handle errors in your program? This chapter aims to answer that question. The first section will help you categorise and characterise errors. The second section will help you design error handling at a high level (issues like whether to recover from an error, when to use different kinds of errors, etc.), the third section is specifically about designing error types in your program.</p>
+<h2 id="thinking-about-errors"><a class="header" href="#thinking-about-errors">Thinking about errors</a></h2>
+<p><a href="error-design/thinking-about-errors.html">thinking-about-errors.md</a></p>
+<h2 id="error-handling"><a class="header" href="#error-handling">Error handling</a></h2>
+<p><a href="error-design/error-handling.html">error-handling.md</a></p>
+<h2 id="error-type-design"><a class="header" href="#error-type-design">Error type design</a></h2>
+<p><a href="error-design/error-type-design.html">error-type-design.md</a></p>
+<h2 id="case-studies"><a class="header" href="#case-studies">Case studies</a></h2>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="thinking-about-errors-1"><a class="header" href="#thinking-about-errors-1">Thinking about errors</a></h1>
+<p>An error is an event where something goes wrong in a program. However, there are many different ways things can go wrong, and many different kinds of 'wrong'. The details of an error event dictate how it should be represented and handled. In this section, we'll cover many different ways to categorise and characterise errors.</p>
+<p>I'm not sure if the terminology I use here is all standard, I've certainly made some up.</p>
+<h2 id="internal-vs-external-errors"><a class="header" href="#internal-vs-external-errors">Internal vs external errors</a></h2>
+<p>Consider a JSON parser. It opens a file, reads the file, and attempts to parse the data as JSON into a data structure. There are many things which could go wrong. The user might supply a filename which does not exist on disk, trying to open the file will fail. If the filename is correct, when the program attempts to read the file, there might be an operating system error which causes the read to fail. If reading succeeds, the JSON might be malformed, so it cannot be parsed correctly. If the file is correct, but there is a bug in the program, some arithmetic operation may overflow.</p>
+<p>It is useful to categorise these errors as 'external', where the input is incorrect, and 'internal', where the input is correct but something unexpected happens.</p>
+<p>An incorrect filename or malformed JSON data are external errors. These are errors which the program should expect to happen sometimes.</p>
+<p>Failure to read the file, or arithmetic overflow are internal errors. These are not due to user input, but due to a problem with the program's environment or the program itself. These errors are unexpected, to varying extents. Bugs in the program are a kind of internal error, these may produce an error which the program itself can detect, or may be a silent error.</p>
+<p>In this example, the input was user input, but in general, an external error might be caused by input which comes from another part of the program. From the perspective of a library, malformed input from the client program would cause an external error.</p>
+<p>Note that although I've said some errors are expected/unexpected there is not a perfect correlation with internal/external. A library which states that the client is responsible for data integrity might treat malformed input as an unexpected external error. A failed network connection on a mobile device is an expected internal error.</p>
+<p>The split between internal and external is not clean, since what constitutes a program is often not clearly defined. Consider a distributed system (or even a system with multiple processes), errors caused by other nodes/processes (or due to interactions of nodes, such as a transaction error) might be considered internal from the perspective of the whole system and external from the perspective of a single node/process.</p>
+<p>One can also extend this thinking within program, making a distinction between errors which occur in the current module, compared with errors which occur in one module and are handled in a different one.</p>
+<h2 id="expectedunexpected-spectrum-of-errors"><a class="header" href="#expectedunexpected-spectrum-of-errors">Expected/unexpected spectrum of errors</a></h2>
+<p>Some errors happen in the normal operation of a program and some are very rare. I believe treating this as a binary is incorrect and we should think about a spectrum of likelihood of an error occurring.</p>
+<p>At one extreme, some errors are impossible, modulo cosmic rays, CPU bugs, etc. Some errors are possible, but should never happen and will only happen if there is a bug in the program. Then there are errors which are expected to happen sometimes, with different frequencies, e.g., file system errors are fairly unlikely to happen, network errors are much more likely, but still rare in a server, but common-ish on a mobile device. At the other extreme, one can write code which always triggers an error condition (and arguably this is not a bug if the error is handled, but it may be considered poor programming practice).</p>
+<h2 id="recoverable-vs-unrecoverable"><a class="header" href="#recoverable-vs-unrecoverable">Recoverable vs unrecoverable</a></h2>
+<p>Can a program recover when an error occurs? Documentation for Rust often starts with a split between recoverable and unrecoverable errors. However, I think this is a more complicated question. Whether a program can recover from an error depends on what we mean by recovering (and what we mean by 'program' - is it recovery if an observer process restarts the erroring process?), it may depend on the program state before and after the error, it may depend on where we try to recover (it might be impossible to recover where the error occurs, but possible further up the call stack, or vice versa), it may depend on what context is available with the error. Even if it is technically possible to recover, if that would take an unreasonable amount of effort or risk, then it might be better to consider the error as unrecoverable.</p>
+<p>There is also the question of intention. An error might be technically recoverable, but a library might want to treat it as unrecoverable for some reason.</p>
+<p>So, I think there is a whole spectrum of recoverability which we can consider for errors and the context where the error occurs.</p>
+<h2 id="multiple-errors"><a class="header" href="#multiple-errors">Multiple errors</a></h2>
+<p>Errors combine in all sorts of ways:</p>
+<ul>
+<li>One error might cause another error as it is propagated or during recovery.</li>
+<li>An error might be deliberately converted into a different kind of error.</li>
+<li>An error might re-occur after recovery, or even after a 'successful' recovery, might cause a different error.</li>
+<li>Errors might be collatable, i.e, after an error occurs and execution continues, other errors are collected and presented to the user all at once.</li>
+</ul>
+<h2 id="execution-environment"><a class="header" href="#execution-environment">Execution environment</a></h2>
+<p>This one is a bit different to the others. It is important to consider how a program is executing when thinking about errors. We might want to treat errors differently when testing or debugging code. We might also treat errors differently if our program is embedded in another (either as a library, a plugin, or some kind application-in-an-application-server scenario). Likewise, if our program is the OS, errors will be treated differently to if it is an application running on top of the OS. A program might also be inside some kind of VM or container with its own error handling facilities, or it might have some kind of supervisor or observer program.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="error-handling-1"><a class="header" href="#error-handling-1">Error handling</a></h1>
+<p>This chapter will discuss what to actually do with your errors.</p>
+<p>When your code encounters an error, you have a few choices:</p>
+<ul>
+<li>recover from the error,</li>
+<li>propagate the error,</li>
+<li>crash.</li>
+</ul>
+<p>Recovery is the most interesting option and most of this section will be spent on this. If you don't recover, then you'll probably propagate the error. This is pretty straightforward, the only choice is whether to convert the error into a different one or propagate it as is. We'll discuss this more in the following chapter on error types.</p>
+<p>Crashing can mean panicking the thread or aborting the process. The former might cause the latter, but that doesn't usually matter. Whether you abort or panic depends on the architecture of your program and the severity of the error. If the program is designed to cope with panicking threads, and the blast radius of the error is limited to a single thread, then panicking is viable and probably the better option. If your program cannot handle threads panicking, or if the error means that multiple threads will be in an inconsistent state, then aborting is probably better.</p>
+<p>Crashing may be a kind of recovery (if just a thread crashes and the program continues, or if the program runs in an environment where crashing is expected and the program can be restarted), but usually it is the least desirable response to an error. Even for prototype programs, you are probably better to propagate errors to the top level rather than crashing, since it is easier to convert that to a proper error handling system (and prototypes turn into production code more often than anyone would like).</p>
+<h2 id="error-handling-strategy"><a class="header" href="#error-handling-strategy">Error handling strategy</a></h2>
+<p>Your project needs an error handling strategy. I consider this an architectural issue and should be decided in the early stages of planning, since it affects the API and implementation designs and can be difficult to change later in development.</p>
+<p>Your strategy should include expectations for robustness (for example, how high priority is it that errors do not surface to the user? Should correctness, performance, or robustness be prioritised? What situations can we assume will never happen?), assumptions about the environment in which the code will run (in particular can errors/crashes be handled externally? Is the program run in a container or VM, or otherwise supervised? Can we tolerate restarting the program? How often?), do errors need to be propagated or reported to other components of the system? Requirements for logging, telemetry, or other reporting, <em>who</em> should handle errors (e.g., for a library, which kinds of error should be handled internally and which should the client handle), and how error/recovery states will be tested.</p>
+<p>Whether your project is a library or an application, and if an application whether it stands alone or is a component in a larger system, will have a huge effect on your error handling strategy. Most obviously, if you are a stand-alone application then there is nobody else to handle errors! In an application you will have more certainty about the requirements of the system, whereas for a library you will likely need to provide for more flexibility.</p>
+<p>Having identified the requirements of your strategy, this will inform how you represent errors as types (discussed below and in the <a href="error-design/error-type-design.html">next chapter</a>), where and how you will recover from errors, and the information your error types must carry (discussed in the following sections).</p>
+<h2 id="result-or-panic"><a class="header" href="#result-or-panic">Result or panic?</a></h2>
+<p>Most programs should use <code>Result</code> for most of their error handling.</p>
+<p>You might think that for a very quick prototype or script, you don't need error handling and unwrapping and panicking are fine. However, using <code>?</code> is usually more ergonomic than <code>unwrap</code> and these tiny programs have a habit of growing into larger ones, and converting panicking code into code with proper error handling is a huge chore. Much better to have a very simple error type (even just a string); changing the error type is much easier.</p>
+<p>You should probably use panics to surface bugs, i.e., in situations which should be impossible. This is easier said than done. For example, consider an integer arithmetic overflow. This might be impossible, but it might also be possible given enough time or the right combination of user input. So even classes of error which usually cause panics are likely only to be best represented as a panic in some circumstances.</p>
+<p>When designing an API, either public or private, it is generally better for a function to return a <code>Result</code> and let the caller decide to panic or not, rather than always panic on an error. It is very easy to convert an <code>Error</code> into a panic but the reverse is more difficult and loses information.</p>
+<p>For how to design the error types carried by <code>Result</code>, see the <a href="error-design/error-type-design.html">next chapter</a>.</p>
+<h2 id="recovery"><a class="header" href="#recovery">Recovery</a></h2>
+<p>Error recovery is tightly linked to your program and to the individual error. You can't recover from a network error in the same way as a user input error (at least not all the time), and different projects (or parts of projects) will handle these errors in different ways. However, there are some general strategies to consider, and there are some ways which recovery intersects with Rust's error types.</p>
+<h3 id="techniques-for-recovery"><a class="header" href="#techniques-for-recovery">Techniques for recovery</a></h3>
+<p>Possible recovery techniques are:</p>
+<ul>
+<li>stop,</li>
+<li>retry,</li>
+<li>retry with new input,</li>
+<li>ignore,</li>
+<li>fallback.</li>
+</ul>
+<p>Most of these may be accompanied by some change in program state. E.g., if you are retrying, you may increment a retry counter so that after some number of failed retries, a different technique is tried. Some programs might have much more complex 'recovery modes'.</p>
+<p>The recovery technique is likely combined with some logging action or reporting to the user. These actions require additional information in the error type which is not needed directly for recovery. I think it is useful to think of logging or reporting as part of error recovery, rather than an alternative, since it is your code which handles the error, rather than throwing it for client code to deal with.</p>
+<h4 id="stop"><a class="header" href="#stop">Stop</a></h4>
+<p>If an error occurs while performing an action, you can simply stop doing the action. This might require 'undo'ing some actions to ensure the program is in a consistent state. Sometimes this just means calling destructors, but it might mean removing data written to disk, etc. Failing to execute an action should probably be reported in some way, either back to the user or via an API to another program or part of the program.</p>
+<p>An extreme form of stopping is crashing. You could terminate the current thread (if your program is designed to handle this happening), or the whole process. This is usually not a very responsible thing to do, but in some environments it is fine (e.g., if the process is supervised by another process or if the process is part of a distributed system where nodes can recover). Assuming that the systems can recover from such a crash, you need to consider how it will recover - if the process runs with the same input and tries the same action, will it always get the same result (i.e., crash again)?</p>
+<h4 id="retry"><a class="header" href="#retry">Retry</a></h4>
+<p>If the error is due to a temporary fault or a fallible actor (such as a human user), simply retrying the action which caused the error might succeed. In other cases, you can retry with different input (e.g., by asking the user for more input, or by using a longer timeout, or asking a different server).</p>
+<h4 id="ignore"><a class="header" href="#ignore">Ignore</a></h4>
+<p>Some errors can simply be ignored. This might happen when the action being attempted is optional in some way, or where a reasonable default value can be used instead of the result of the action.</p>
+<h4 id="fallback"><a class="header" href="#fallback">Fallback</a></h4>
+<p>Sometimes there is an alternate path to the path which caused an error and your program can fallback to using that path. This might be as simple as using a default value instead of trying to find a better value, or it might be using an alternate library or alternate hardware (e.g., falling back to an older library if the newer library is not present on a system, or using CPU rendering rather than dedicated graphics hardware).</p>
+<h3 id="where-to-recover"><a class="header" href="#where-to-recover">Where to recover</a></h3>
+<p>You may choose to recover near to where the error occurs, or throw the error up the call stack and recover at some distance from the error. Both approaches have advantages and there is no best choice.</p>
+<p>Close to the error you are likely to have the most specific context and therefore the most information for recovery. There is also the minimum of disruption to program state. On the other hand, by throwing the error and dealing with it further from the error site, you might have more options, for example you might be able to interact with the user in a way which is impossible deep in library code. The correct recovery approach may also be clearer, especially if the error occurs in a library. Finally, if you centralize error handling to some extent, this may allow more code reuse.</p>
+<h3 id="information-for-recovery"><a class="header" href="#information-for-recovery">Information for recovery</a></h3>
+<p>If you always recover close to the error site, then your error types only need to carry information for logging/reporting (in the event that recovery fails). If you handle errors further from the error site, then your error type must carry enough information for recovery.</p>
+<p>As errors propagate through the stack, you may want to add information to your error. This is fairly easy using the <code>Result::map_err</code> method, but you will need to account for this when designing your error types. Likewise, you may wish to remove information by making the error more abstract (especially at module or crate boundaries). This is inevitably a trade-off between providing enough information to recover, but not providing too much which might expose the internals of your module or make the API too complex.</p>
+<p>There is also the question of how to store information in your errors. For most code, I recommend storing information structurally as data and avoiding pre-formatting data into message strings or summarizing data. Storing information as structural data lets your code's client decide how to log or report errors, enables maximal flexibility in recovery, allows localization and other customisation, and permits structural logging.</p>
+<h2 id="logging"><a class="header" href="#logging">Logging</a></h2>
+<p>Logging is useful for debugging and basically essential for running services in production. You will probably have a bunch of constraints around logging because of how it must integrate (technically and culturally) with other systems.</p>
+<p>How you log should follow from your logging strategy - how you decide what to log and how to log it. That is beyond the scope of this doc. I'll cover some options, but which is appropriate will depend on your logging strategy, rather than anything I could enumerate here.</p>
+<p>One big choice is whether to log errors where they occur or in some central-ish point or points. The former is easier since it puts less pressure on the errors to carry context. The latter makes it easier to log only unhandled (at some level) errors, and it makes it easier to change the way errors are logged. This will somewhat depend on whether you want to log all errors or only uncaught ones. In the latter case, you'll probably want to do some logging in error recovery too since this is an area where bugs (or performance issues) are more likely to be triggered.</p>
+<p>Another choice is whether to keep data in errors structurally or pre-formatted. The latter is easier and more flexible in the sense that the data stored can be changed over time easily. However, it is less flexible in that there is only one choice for logging. In the former case, logging in different places or at different times can log different information. The information can also be formatted differently, internationalized, translated, or used to create derived information. Keeping data structurally is therefore the better choice in large or long-lived systems.</p>
+<p>Structured logging takes the structured approach further by logging data in a structured way, rather than logging a formatted string. It is usually superior in all but the simplest scenarios.</p>
+<p>Tracing is an approach to logging which relates log events by program flow across time. This is often much more useful than logging only point-in-time events without context. Generally, errors don't need to be aware of whether you do simple logging or tracing. However, if you're logging errors centrally, you may need to add some tracing information to errors so that when they are logged there is the relevant context for the tracing library.</p>
+<h3 id="libraries-for-logging"><a class="header" href="#libraries-for-logging">Libraries for logging</a></h3>
+<ul>
+<li><a href="https://github.com/tokio-rs/tracing">tracing</a> is the best choice for full tracing and structured logging. It is maintained by the Tokio project, but does not require using Tokio. There is an ecosystem of integration crates and other libraries.</li>
+<li><a href="https://github.com/rust-lang/log">log</a> is part of the Rust project and an old standard of Rust logging. It requires a logger to actually do the logging and is therefore independent of how logs are emitted. It supports simple structured logging, but not tracing.</li>
+<li><a href="https://github.com/env-logger-rs/env_logger/">env-logger</a> is the most commonly used logger (used with log, above). It is simple and minimal and best suited for small projects, prototypes, etc.</li>
+<li><a href="https://github.com/estk/log4rs">log4rs</a> and <a href="https://github.com/daboross/fern">fern</a> are more full-featured but complex loggers (which again integrate with log).</li>
+<li><a href="https://github.com/slog-rs/slog">slog</a> was the most popular choice for structured logging and is an alternative to log. However, it does not seem to be maintained any longer and is probably not a good choice for new systems.</li>
+</ul>
+<p>I would recommend using Tracing if you need production-strength logging/tracing, or log and env-logger if you need simple logging.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="error-type-design-1"><a class="header" href="#error-type-design-1">Error type design</a></h1>
+<p>You can use any type as an error in Rust. The <code>E</code> in <code>Result&lt;T, E&gt;</code> has no bounds and can be anything. At the highest level there are two choices: use a concrete error type or use a trait object (e.g., <code>Box&lt;dyn Error&gt;</code>). In the latter case, you'll still need concrete error types to use for values, you just won't expose them as part of your API. When designing the concrete error types, there are two common approaches: create a taxonomy of error types primarily using enums, or use a single struct which represents all the errors in a module or modules.</p>
+<p>There are also some less common choices for the concrete error types. You can use an integer type which can be useful around FFI where you have an error number from C code. You should probably convert the error number into a more idiomatic error type before passing it on, but it can be a useful technique as an intermediate form between C and Rust types, or for some very specialised cases.</p>
+<p>You can also use a string error message as your error type, this is rarely suitable for production code but is useful when prototyping because converting code from one kind of error type to another is much easier than converting panicking code to using <code>Result</code>s (it also lets you use <code>?</code> which can clean up your code nicely). You'll probably want to include <code>type Result&lt;T&gt; = std::result::Result&lt;T, &amp;'static str&gt;;</code> to make this technique more usable. Alternatively, you can use string messages as the concrete types underlying trait object error types. Anyhow provides the <code>anyhow!</code>/<code>bail!</code> macro to make this easy.</p>
+<p>For the rest of this section, we'll describe the two styles for concrete error types, then using trait objects as error types. We'll finish with some discussion on how to choose which technique to use, and some general tips for writing better error types.</p>
+<h2 id="enum-style"><a class="header" href="#enum-style">Enum style</a></h2>
+<p>In this style, you define a taxonomy of errors with a high level of detail and specialization, in particular, different kinds of errors have different data. Concretely, this means primarily using enums with a variant for each kind of error and the data specific to that kind of error embedded in the variant. E.g.,</p>
+<pre><pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub enum MyError {
+    Network(IoError, Request),
+    Malformed(MalformedRespError),
+    MissingHeader(String),
+    UnknownField(String),
+}
+
+pub struct MalformedRespError {
+    // ...
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>(Note that I think this is a poorly designed error, I'll give better designs below).</p>
+<p>The advantages of this approach are:</p>
+<ul>
+<li>there is maximum information available, this is especially useful for error recovery,</li>
+<li>it's easy to extend with new errors,</li>
+<li>it's a common approach and is conceptually simple, so it is easy to understand,</li>
+<li>by using more enums or fewer enums with more variants, you can adjust the amount of static vs dynamic typing,</li>
+<li>throwing, rethrowing (especially at API boundaries when making errors strictly more abstract), and catching errors is ergonomic,</li>
+<li>it works well with error libraries like thiserror.</li>
+</ul>
+<p>There are two ways to consider the design: by designing based on how the errors will arise or how the errors will be handled. I think the former is easier and more future-proof (how can you predict all the ways an error might be handled?).</p>
+<p>There is a lot of scope for different design decisions: how to categorise errors, how much detail to include, how to structure the errors, how to handle back/forward compatibility, etc. Concretely, how many enums should you use and how many variants? Should you nest errors? How should you name the enums and variants?</p>
+<p>If designing based on how errors arise, you want one enum for each class of errors and one variant for each specific kind of error (obviously, there's a lot of space here for what constitutes a class or specific kind of error). More practically, a function can only return a single error type, so all errors which can be returned from a function must belong to a single enum. Since errors can likely be returned from multiple functions, you'll end up with a set of errors returned from a set of functions which have the same error type. It is possible, but not necessary, for that set of functions to match with module boundaries. So one error type per module is sometimes OK, but I wouldn't recommend it as a general rule.</p>
+<p>Furthermore, at different levels of abstraction, the right level of detail for errors will change (we'll discuss this a bit more below). So, the right level of detail for error enums deep inside your implementation is probably different to the right level in the API.</p>
+<p>For example,</p>
+<pre><pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct MessageError {
+    kind: MessageErrorKind,
+    request: Request,
+}
+
+pub enum MessageErrorKind {
+    Network(IoError),
+    Parse(Option&lt;ProtocolVersion&gt;),
+}
+
+enum NetworkError {
+    NotConnected,
+    ConnectionReset,
+    // ...
+}
+
+enum ParseError {
+    Malformed(MalformedRespError),
+    MissingHeader(String),
+    UnknownField(String),
+}
+
+struct MalformedRespError {
+    // ...
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>In this example (over-engineered for such a small example, but imagine it as part of a larger program), <code>NetworkError</code> and <code>ParseError</code> are used in the implementation and are designed to contain maximal information for recovery. At the API boundary (if we can't recover), these are converted into a <code>MessageError</code>. This has is a struct since all errors will contain the request which caused the error, however, it still follows the 'enum taxonomy' approach rather than the 'single struct' approach since the error kinds hold different data. There should be enough information here for users of the API to recover or to report errors to the user.</p>
+<p>If designing based on how an error might be handled, you will want a different variant for each different recovery strategy. You might want a different enum for each recovery point, or you might just want a single enum per module or crate. For example,</p>
+<pre><pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub enum Retryable {
+    Network(IoError, Request),
+    Malformed(MalformedRespError),
+    NotRetryable(Box&lt;dyn Error&gt;),
+}
+
+pub enum Reportable {
+    MissingHeader(String),
+    UnknownField(String),
+    RetryFailed(Retryable),
+    NotReportable(Box&lt;dyn Error&gt;),
+}
+
+pub struct MalformedRespError {
+    // ...
+}
+<span class="boring">}
+</span></code></pre></pre>
+<h3 id="nested-errors"><a class="header" href="#nested-errors">Nested errors</a></h3>
+<p>One thing to be aware of in this approach is nesting of errors. It is fairly common to have variants which simply contain a source error, with a simple <code>From</code> impl to convert one error to another. This is made ultra-ergonomic by the <code>?</code> operator and attributes in the error handling libraries such as thiserror. I believe this idiom is <em>very</em> overused, to the point where you should consider it an anti-pattern unless you can prove otherwise for the specific case.</p>
+<p>In most cases where you create an error out of another error, there is additional context that is likely to be useful when recovering or debugging. If the error is simply nested, then this extra context is missed. Sometimes, if it seems like there is no extra useful context, then it might be a signal that the source error should be a variant of the other error, rather than nested in it. Alternatively, it might be that the level of abstraction should be changed.</p>
+<p>For example, you might have a <code>std::io::Error</code> nested in your enum as <code>MyError::Io(std::io::Error)</code>. It might be that there is more context to include, such as the action, filename, or request which triggered the IO error. In this case, <code>std::io::Error</code> comes from another crate, so it cannot be inlined. It might be that the level of abstraction should change, e.g., if the io error occurred when loading a config file from disk, it could be converted into a <code>MyError::Config(Path)</code>.</p>
+<p>To add more context to an error, use <code>.map_err(|e| ...)?</code> rather than just <code>?</code>. To change the abstraction level, you might be able to use a custom <code>From</code> impl, or you might need to use <code>map_err</code> with an explicit conversion method.</p>
+<p>Often, this pattern occurs when primarily considering logging errors rather than using errors for recovery. IMO, it is usually better to have fine-grained logging where the error occurs, rather than relying on logging errors at some central point. See the <a href="error-design/TODO">error handling</a> section for more discussion.</p>
+<p>Another issue of this approach is that it can lead to cycles of error types, e.g.,</p>
+<pre><pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub enum A {
+    // ...
+    B(Box&lt;B&gt;),
+}
+
+pub enum B {
+    Foo,
+    A(A),
+    Other(Box&lt;dyn Error&gt;),
+    // ...
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Here you might have a <code>B</code> inside an <code>A</code> inside a <code>B</code> or vice versa, or more deeply nested. When it comes to error recovery, and you pattern match on a <code>B</code> to find a <code>B::Foo</code>, you might miss some instances because the <code>B::Foo</code> is hidden inside a <code>B::A</code> variant. It could also be hidden inside the <code>B::Other</code> variant, either as a <code>B</code> or an <code>A</code>. This will make error recovery messy where it shouldn't be.</p>
+<p>The solution is to aggressively normalize errors in the <code>From</code> impls. However, the automatically generated impls won't do this for you, so that means writing them by hand.</p>
+<p>A corollary to this thinking on nested errors, is that <code>Error::source</code> is not a very useful method (IMO, it is only useful for logging errors and debugging).</p>
+<h2 id="single-struct-style"><a class="header" href="#single-struct-style">Single struct style</a></h2>
+<p>In this style, you use a single error struct. Each error stores mostly the same data and this is stored separately to the kind of error. Though you will likely still use an enum to represent the kind of error, this will likely be a C-like enum without embedded data. E.g.,</p>
+<pre><pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct MyError {
+    kind: ErrorKind,
+    source: Box&lt;dyn Error&gt;,
+    message: Option&lt;String&gt;,
+    request: Option&lt;Request&gt;,
+}
+
+pub enum ErrorKind {
+    Network,
+    MalformedResponse,
+    MissingHeader,
+    UnknownField,
+    // This lets us handle any kind of error without adding new error kinds.
+    Other,
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>This style is less common in the ecosystem. A prominent example is <a href="https://doc.rust-lang.org/nightly/std/io/struct.Error.html"><code>std::io::Error</code></a>, note that this error type is further optimised by using a packed representation on some platforms.</p>
+<p>The advantages of the single struct style are:</p>
+<ul>
+<li>it scales better when there are lots of errors (there is not a linear relationship between the number of errors and the number of error types),</li>
+<li>logging errors is simple,</li>
+<li>catching errors with downcasting is not too bad, and familiar from the trait object approach to error handling,</li>
+<li>it is easily customisable at the error site - you can add custom context without adding (or changing) an error kind,</li>
+<li>it requires less up-front design.</li>
+</ul>
+<p>You have a choice about what information to include in your error struct. Some generic information you might like to include are a backtrace for the error site, an optional source error, some error code or other domain-specific way to identify the error, and/or some representation of the program state (this last one is very project-specific). If you include a source error, then you might face similar issues to those described in the previous section on error nesting.</p>
+<p>You might also include an error message created at the error site. This is convenient and flexible, but has limitations in terms of reporting - it means the message cannot be customized (e.g., a GUI might want to format an error message very differently to a CLI) or localized.</p>
+<p>You will probably want to include the kind of error and use an <code>ErrorKind</code> enum for this. Error recovery is mostly impossible otherwise. You then have to decide how detailed to make the error kinds. More detail can help recovery but means more variants to keep track of and too much detail may be of little use (especially if your error struct has a pre-formatted message and/or other information).</p>
+<h2 id="trait-objects"><a class="header" href="#trait-objects">Trait objects</a></h2>
+<p>You may choose to you use a trait object as your error type, <code>Box&lt;dyn Error&gt;</code> is common. In this case, you still need concrete error types and the design decisions discussed above still apply. The difference is that at some point in your code, you convert the concrete error types into the trait object type. You could do this at the API boundary of your crate or at the source of the error or anywhere in between.</p>
+<p>There are some advantages of using a trait object error type:</p>
+<ul>
+<li>assuming you are using different error types for your module internals and your API, it saves you having a second set of error types for the API,</li>
+<li>it is statically much simpler to have a single type rather than a complex taxonomy of types,</li>
+<li>assuming users will not do 'deep' recovery, using the errors can be simpler too,
+<ul>
+<li>in particular, logging is more uniform and simpler,</li>
+</ul>
+</li>
+<li>'dynamic typing' of errors is more flexible and makes backwards compatibility and stability easier.</li>
+</ul>
+<h3 id="the-error-type"><a class="header" href="#the-error-type">The error type</a></h3>
+<p>Since <code>dyn Trait</code> types do not have a known size, they must be wrapped in a pointer. Most cases can use <code>Box</code> since that is most convenient. For systems with no allocator, or where micro-optimization of the error path is required, you can dedicate some static memory to holding an error and use a <code>&amp;'static</code> reference.</p>
+<p>The most common trait to use for the trait object is the <code>Error</code> trait from <a href="https://doc.rust-lang.org/nightly/core/error/trait.Error.html">the standard library</a>. This is part of core (as opposed to std) so can be used in no-std environments. An alternative is to use the <code>Error</code> trait from <a href="https://github.com/dtolnay/anyhow">Anyhow</a>, an error handling crate. This has the advantage that you don't need to use unstable features of the standard library. It has the same features as the standard library trait, but with a slightly different API.</p>
+<p>You could use your own error trait type. For ease of working with other code, you probably want it to have <code>std::error::Error</code> as a super-trait. However, I'm not aware of any advantage of doing this over using concrete error types.</p>
+<h3 id="exposing-additional-context"><a class="header" href="#exposing-additional-context">Exposing additional context</a></h3>
+<p>As described in <a href="error-design/../rust-errors/result-and-error.html">the Result and Error section</a>, you can dynamically provide additional context from an Error object. This should be well-documented in your API docs, including whether users can rely on the stability of the additional context.</p>
+<p>Useful context to provide may include:</p>
+<ul>
+<li>a backtrace,</li>
+<li>pre-formatted messages as strings for logging or reporting to users (though not that this precludes localization or other customisation of the message),</li>
+<li>error numbers or other domain-specific information.</li>
+</ul>
+<p>If using dynamic trait object errors, the errors are only useful for coarse-grained recovery, logging, or for direct reporting to users. If you want to enable fine-grained recovery, you are probably better off using concrete error types, rather than adding loads of context to error trait objects.</p>
+<h3 id="eliminating-concrete-error-types"><a class="header" href="#eliminating-concrete-error-types">Eliminating concrete error types</a></h3>
+<p>You can't really eliminate all concrete error types; due to Rust's nature, you have to have a concrete type which is abstracted into the trait object. However, you <em>can</em> avoid having to define your own concrete types in every module. While this is a reasonable approach, I think it is probably only the best approach in some very limited circumstances.</p>
+<p>How to do this depends on how much information you need to get from the <code>Error</code> trait object. If you want to provide some additional context, you'll need somewhere to store that context or the data required to create it. Some approaches:</p>
+<ul>
+<li>use an error number (since the integer types don't implement <code>Error</code>, you will need to wrap the number in a newtype struct, e.g., <code>pub struct ErrNum(u32);</code>),</li>
+<li>use a string (again, you'll need a newtype, or if you use Anyhow you can make use of the <code>anyhow!</code>/<code>bail!</code> macros),</li>
+<li>use a the single struct style described above with a very simple structure.</li>
+</ul>
+<h2 id="picking-an-approach"><a class="header" href="#picking-an-approach">Picking an approach</a></h2>
+<p>First of all, be aware that you are not making <em>one</em> choice per project. Different modules within your project can take different approaches, and you may want to take a different approach with the errors in your API vs those in the implementation. As well as different approaches in different parts of your project, you can mix approaches in one place, e.g., using concrete errors for some functions and trait object errors for others, or using a mix of enum style and single struct style errors.</p>
+<p>Ultimately the style of error type which is best depends on what kind of error handling you'll do with them (or expect your users to do with them, if you're writing a library). For error recovery at (or very close) to the error site, the error type doesn't matter much. If you are going to do fine-grained recovery at some distance from where the error is thrown (e.g., in a different module or crate), then the enum style is probably best. If you have a lot of errors in a library (and/or all errors are rather similar), or you expect the user to only do coarse-grained recovery (e.g., retry or communicate failure to the user), then the single struct style might be better. Where there can be effectively no recovery (or recovery is rare), and the intention is only to log the errors (or report the errors to a developer in some other way) then trait objects might be best.</p>
+<p>Common advice is to use concrete error types for libraries (because they give the user maximum flexibility) and trait object errors in applications (for simplicity). However, I think this is an over-simplification. The advice for libraries is good unless you are sure the user won't want to recover from errors (and note that recovery is possible using downcasting, it's just easier if there is more information). For applications, it might make sense to use concrete types to make recovery easier. For many applications, you're more likely to be able to recover from locally produced errors rather than those from upstream libraries. Being closer to the user also makes interactive recovery easier.</p>
+<p>For large, sophisticated applications, you probably want to use the enum style of concrete error, since this permits localisation (and other customisation) of error messages and helps with the modularity of APIs.</p>
+<h2 id="general-advice"><a class="header" href="#general-advice">General advice</a></h2>
+<h3 id="naming"><a class="header" href="#naming">Naming</a></h3>
+<p>Avoid over-using <code>Error</code> in names, it is easy to end up with it repeating endlessly. You might want to use it in your type names (unless it is clear from context), but you almost certainly don't need it in variant names. E.g., <code>MyError::Io</code> is better than <code>MyError::IoError</code>.</p>
+<p>It is fine to overload the standard library names like <code>Result</code> and <code>Error</code>, you can always use an explicit prefix to name the std ones, but you'll rarely need to.</p>
+<p>Avoid having an <code>errors</code> module in your crate. Keep your errors in the module they serve and consider having different errors in different modules. Using an <code>errors</code> module encourages thinking of errors as a per-project thing, rather than tailoring their level of detail to what is most appropriate.</p>
+<h3 id="stability"><a class="header" href="#stability">Stability</a></h3>
+<p>Your errors are part of your API and therefore must be considered when thinking about stability (e.g., how to bump the semver version). If you have dynamically typed aspects to your errors, then you need to decide (and document) whether these are part of your API or not (e.g., if you use a trait object error and permit downcasting to a concrete type, can the user rely on the concrete type remaining the same? What about provided additional context?).</p>
+<p>For error enums, you probably should mark all your enums as <code>#[non_exhaustive]</code> so that you can add variants backwards compatibly.</p>
+<h3 id="converting-errors-at-api-boundaries"><a class="header" href="#converting-errors-at-api-boundaries">Converting errors at API boundaries</a></h3>
+<p>It often makes sense to have different error types in your API to those in the implementation. That means that the latter must be converted to the former at API boundaries. Fortunately, this is usually ergonomic in Rust due to the implicit conversion in the <code>?</code> operator. You'll just need to implement the <code>From</code> trait for the types used in the API (or <code>Into</code> for the concrete types, if that is not possible).</p>
+<p>If you'll be converting error types at boundaries, you'll be converting to a more abstract (or at least less detailed) representation. That might mean converting to a trait object, or it might be a more suitable set of concrete types. If you're using trait objects internally, you probably don't need to convert, although you might change the trait used. As discussed above, you should choose the types most appropriate to your API. In particular, you should consider what kind of error recovery is possible (or reasonable) outside an abstraction boundary.</p>
+<p>Should you use the internal error as a 'source' error of the API error? Probably not, after all the internal error is part of your internals and not the API definition and therefore you probably don't want to expose it. If the expectation is that the only kind of error handling that will be done is to log the errors for debugging or crash reporting, etc. then it might make sense to include the source error. In this case, you should document that the source error is not part of the stable API and should not be used for error handling or relied upon (be prepared for users to rely on it anyway).</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="resources"><a class="header" href="#resources">Resources</a></h1>
+<ul>
+<li><a href="https://doc.rust-lang.org/nightly/book/ch09-00-error-handling.html">The Book</a></li>
+<li><a href="https://github.com/rust-lang/project-error-handling/blob/master/error-design-patterns-book/src/SUMMARY.md">Error handling WG error patterns book draft</a></li>
+<li><a href="https://hackmd.io/VN6AtpySR4Or_CV8b8XjRg">Draft doc on Rust's error handling model</a></li>
+</ul>
+<h2 id="blog-posts"><a class="header" href="#blog-posts">Blog posts</a></h2>
+<ul>
+<li><a href="https://blog.burntsushi.net/rust-error-handling/">BurntSushi's blog post</a> and specifically on <a href="https://blog.burntsushi.net/unwrap/">using unwrap</a>.</li>
+<li><a href="https://kazlauskas.me/entries/errors">Context-preserving error handling</a> blog post.</li>
+<li><a href="http://sled.rs/errors">Error Handling in a Correctness-Critical Rust Project</a> from the author of Sled, a very high quality project to build a key-value store in Rust.</li>
+<li><a href="http://joeduffyblog.com/2016/02/07/the-error-model/">The Error Model</a> a post on the error model of Midori (a research operating system). Not Rust-related, but a similar error model. Discusses motivation, history, and design issues which are relevant for designing Rust errors.</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+            </nav>
+
+        </div>
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        <script type="text/javascript">
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+    </body>
+</html>

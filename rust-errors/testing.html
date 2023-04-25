@@ -1,0 +1,260 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Testing - Error Handling in Rust</title>
+        <!-- Custom HTML head -->
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../intro.html">Introduction</a></li><li class="chapter-item expanded "><a href="../rust-errors/index.html"><strong aria-hidden="true">1.</strong> Rust errors</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../rust-errors/result-and-error.html"><strong aria-hidden="true">1.1.</strong> Result and Error</a></li><li class="chapter-item expanded "><a href="../rust-errors/panic.html"><strong aria-hidden="true">1.2.</strong> Panic</a></li><li class="chapter-item expanded "><a href="../rust-errors/interop.html"><strong aria-hidden="true">1.3.</strong> Non-Rust errors and FFI</a></li><li class="chapter-item expanded "><a href="../rust-errors/testing.html" class="active"><strong aria-hidden="true">1.4.</strong> Testing</a></li></ol></li><li class="chapter-item expanded "><a href="../ecosystem.html"><strong aria-hidden="true">2.</strong> Rust's ecosystem</a></li><li class="chapter-item expanded "><a href="../error-design/index.html"><strong aria-hidden="true">3.</strong> Error design</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../error-design/thinking-about-errors.html"><strong aria-hidden="true">3.1.</strong> Thinking about errors</a></li><li class="chapter-item expanded "><a href="../error-design/error-handling.html"><strong aria-hidden="true">3.2.</strong> Error handling</a></li><li class="chapter-item expanded "><a href="../error-design/error-type-design.html"><strong aria-hidden="true">3.3.</strong> Error type design</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">3.4.</strong> Case studies</div></li></ol></li><li class="chapter-item expanded "><a href="../resources.html"><strong aria-hidden="true">4.</strong> Resources</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Error Handling in Rust</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="testing"><a class="header" href="#testing">Testing</a></h1>
+<p>This chapter will cover the intersection of error handling and testing. We'll cover how to handle errors which occur in tests, both where an error should indicate test failure and where we want to test that an error does occur.</p>
+<p>You should ensure that your project has good test coverage of error paths as well as testing the success path. This might mean that errors are propagated correctly, that your code recovers from errors in the right way, or that errors are reported in a certain way. It is particularly important to test error recovery, since this can lead to program states (often many complex states) which are not encountered in normal execution and might occur only rarely when the program is used.</p>
+<h2 id="handling-errors-in-tests"><a class="header" href="#handling-errors-in-tests">Handling errors in tests</a></h2>
+<p>In this section we'll assume a test should pass if there is no error and the test should fail if there is any error.</p>
+<p>A basic Rust unit test fails if the function panics and passes if it does not. So, if you use only panics for error handling, then things are very easy! However, if (more likely) you have at least some <code>Result</code>s to handle, you have to do a bit more work. The traditional approach is to panic if there is an error, using <code>unwrap</code>. Since 2018, you can return a <code>Result</code> from a test. In this case the test fails if the test returns an error or panics, so you can use the <code>?</code> operator to fail a test on error. To do this simply add <code>-&gt; Result&lt;(), E&gt;</code> (for any error type <code>E</code>) to the signature of the test.</p>
+<h2 id="testing-the-kind-of-errors"><a class="header" href="#testing-the-kind-of-errors">Testing the kind of errors</a></h2>
+<p>To properly test your program, you should test the errors which your functions throw. Exactly what to test is an interesting question: for internal functions you should test what is needed, this might mean just that any error is thrown (for certain inputs). If you rely on certain errors being thrown (e.g., for recovery) then you should test that a specific error is thrown or that the error contains correct information. Likewise, for testing public functions, you should test what your API guarantees (do you guarantee certain error types under some circumstances? Or only that <em>an</em> error is thrown?).</p>
+<p>To require that a test panics, you can use the <code>#[should_panic]</code> attribute. You can use an <code>expected</code> parameter to test for a particular message when panicking, e.g., <code>#[should_panic(expected = &quot;internal compiler error&quot;)]</code>.</p>
+<p>You could use <code>#[should_panic]</code> with <code>unwrap</code> to test that an error is thrown, but it is a bad idea: you could easily pass the test by some other part of the code panicking before the error should occur.</p>
+<p>The better way to test for the presence of an error is to <code>assert</code> <code>Result::is_err</code> is true. If there are more properties of the error to check, then you can use <code>Result::is_err_and</code> for simple checks or <code>Result::unwrap_err</code> where there is more code. For example,</p>
+<pre><pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[test]
+fn test_for_errors() {
+    assert!(should_throw_any_error().is_err());
+    assert!(should_throw_not_found().is_err_and(|e| e.kind() == ErrorKind::NotFound));
+
+    let e = should_throw_error_foo().unwrap_err();
+    assert_eq!(e.kind(), ErrorKind::Foo);
+    assert_eq!(e.err_no(), 42);
+    assert_eq!(e.inner().kind(), ErrorKind::NotFound);
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Exactly how to test properties of the error thrown will depend on what kind of error types you are using and what guarantees you are testing. You may be able to call methods on the error and assert properties of the results (as shown in the example above). If you want to test the type of the error then you'll need to either downcast (if using trait object error types) or match (or use <code>if let</code>; if using enum error types). In the latter case, the <code>assert_matches</code> macro can be useful - you can test that an error is thrown and the exact type of the error in one go, e.g., <code>assert_mactches!(should_throw_not_found(), Err(MyError::NotFound));</code>.</p>
+<h2 id="testing-error-recovery-and-handling"><a class="header" href="#testing-error-recovery-and-handling">Testing error recovery and handling</a></h2>
+<p>It is important to test the error handling/recovery paths, however, with idiomatic error handling this is not trivial because it is not idiomatic to pass <code>Result</code>s into a function, but rather to test the result and only pass in a value if the result is <code>Ok</code>. This means that the only way to inject errors when testing is to have functions return an error. Unless you have functions which take a closure, then the best way to do this is by using mock objects.</p>
+<p>Mocking in Rust is usually ad hoc and lightweight. The common pattern is that you have a generic function or function which takes a trait object and you pass a custom mock object which implements the required trait bounds. For example,</p>
+<pre><pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Function to test
+fn process_something(thing: impl Thing) -&gt; Result&lt;i32, MyError&gt; {
+    // ...
+}
+
+trait Thing {
+    fn process(&amp;self, processor: Proc) -&gt; Result&lt;f32, MyError&gt;;
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    // Mock object
+    struct AlwaysZero;
+
+    impl Thing  for AlwaysZero {
+        fn process(&amp;self, processor: Proc) -&gt; Result&lt;f32, MyError&gt; {
+            Ok(0.0)
+        }
+    }
+
+    // Mock object
+    struct AlwaysErr;
+
+    impl Thing for AlwaysErr {
+        fn process(&amp;self, processor: Proc) -&gt; Result&lt;f32, MyError&gt; {
+            Err(MyError::IoError)
+        }
+    }
+
+    #[test]
+    fn process_zero() -&gt; Result&lt;(), MyError&gt; {
+        assert_eq!(process_something(AlwaysZero)?, 0);
+        Ok(())
+    }
+
+    #[test]
+    fn process_err() -&gt; Result&lt;(), MyError&gt; {
+        // Note that we test the specific error returned but not the contents of
+        // that error. This should match the guarantees/expectations of `process_something`.
+        assert_matches!(process_something(AlwaysErr), Err(MyError::ProcessError(_)));
+        Ok(())
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>For more sophisticated mocking, there are several mocking libraries available. <a href="https://docs.rs/mockall/latest/mockall/">Mockall</a> is the most popular. These can save a lot of boilerplate, especially when you need mock objects to do more than always return a single error.</p>
+<h2 id="testing-error-reporting"><a class="header" href="#testing-error-reporting">Testing error reporting</a></h2>
+<p>For applications with sophisticated error reporting (e.g., a compiler), you'll want to test that error reporting output, ensuring that the messages which are expected and other data such as the input which caused the error, information to locate that input, error numbers, etc.</p>
+<p>How to test this will vary by application, you might be able to unit test the output or you might prefer to use integration tests. You'll want to implement some kind of framework to help these tests so that you're not doing loads of repetitive string comparisons. It's important not to test too much or your test suite will be fragile. An example of such tests are rustc's <a href="https://rustc-dev-guide.rust-lang.org/tests/ui.html">UI tests</a>.</p>
+<h2 id="benchmarking"><a class="header" href="#benchmarking">Benchmarking</a></h2>
+<p>If errors can occur in real life, then you should probably consider errors when benchmarking. You might want to separately benchmark what happens in the pure success and the error cases. You might also want a benchmark where errors occur randomly with realistic (or greater than realistic) frequency. This will require some engineering which is similar to mocking, but does the real thing in some cases and mocks an error occasionally.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../rust-errors/interop.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                            <a rel="next" href="../ecosystem.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../rust-errors/interop.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                    <a rel="next" href="../ecosystem.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+    </body>
+</html>
