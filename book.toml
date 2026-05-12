@@ -1,8 +1,20 @@
 [book]
-title = "Error Handling in Rust"
+title = "Rust Error Documentation"
 authors = ["Nick Cameron"]
 src = "."
 language = "en"
 
 [rust]
-edition = "2021"
+edition = "2024"
+
+[build]
+create-missing = false
+
+[output.html]
+git-repository-url = "https://github.com/nrc/error-docs"
+site-url = "/error-docs/"
+
+[output.linkcheck2]
+follow-web-links = true
+traverse-parent-directories = false
+exclude = []

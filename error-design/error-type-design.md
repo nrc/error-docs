@@ -107,7 +107,7 @@ For example, you might have a `std::io::Error` nested in your enum as `MyError::
 
 To add more context to an error, use `.map_err(|e| ...)?` rather than just `?`. To change the abstraction level, you might be able to use a custom `From` impl, or you might need to use `map_err` with an explicit conversion method.
 
-Often, this pattern occurs when primarily considering logging errors rather than using errors for recovery. IMO, it is usually better to have fine-grained logging where the error occurs, rather than relying on logging errors at some central point. See the [error handling](TODO) section for more discussion.
+Often, this pattern occurs when primarily considering logging errors rather than using errors for recovery. IMO, it is usually better to have fine-grained logging where the error occurs, rather than relying on logging errors at some central point. See the [error handling](error-handling.md) section for more discussion.
 
 Another issue of this approach is that it can lead to cycles of error types, e.g.,
 

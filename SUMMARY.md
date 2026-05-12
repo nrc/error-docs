@@ -12,5 +12,4 @@
   - [Thinking about errors](error-design/thinking-about-errors.md)
   - [Error handling](error-design/error-handling.md)
   - [Error type design](error-design/error-type-design.md)
-  - [Case studies]()
 - [Resources](resources.md)
