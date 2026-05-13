@@ -24,3 +24,6 @@ These docs are licensed under CC-BY-4.0.
 
 - CI
 - edit and update all the sections!
+- more on `dyn Error` style errors
+- what to do with Display
+- Why source/nested errors and backtraces are IMO bad
