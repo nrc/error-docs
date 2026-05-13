@@ -14,7 +14,7 @@ Then, `mdbook build` to build and `mdbook serve` to serve up a local copy.
 
 ## Contributing
 
-Contributions are welcome!
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for more info.
 
 If you notice an error (heh) or think something could be improved, please open an [issue](https://github.com/nrc/error-docs/issues/new) or PR.
 
@@ -24,4 +24,3 @@ These docs are licensed under CC-BY-4.0.
 
 - CI
 - edit and update all the sections!
-- CoC, license?, AI guidelines, contributing guidelines
