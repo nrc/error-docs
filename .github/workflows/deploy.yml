@@ -8,18 +8,18 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
-    - name: Install mdbook
-      run: |
+      - uses: actions/checkout@v6
       - name: Install mdbook
-        uses: taiki-e/install-action@v2
-        with:
-          tool: mdbook
-      - name: Install mdbook-linkcheck2
-        uses: taiki-e/install-action@v2
-        with:
-          tool: mdbook-linkcheck2
-          fallback: cargo-install
+        run: |
+        - name: Install mdbook
+          uses: taiki-e/install-action@v2
+          with:
+            tool: mdbook
+        - name: Install mdbook-linkcheck2
+          uses: taiki-e/install-action@v2
+          with:
+            tool: mdbook-linkcheck2
+            fallback: cargo-install
     - name: Deploy GitHub Pages
       run: |
         mdbook build
