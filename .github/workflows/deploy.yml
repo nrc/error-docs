@@ -25,7 +25,7 @@ jobs:
           mdbook build
           mkdir gh-pages
           cd gh-pages
-          mv ../book/* .
+          mv ../book error-docs
       - name: Upload static files as artifact
         id: deployment
         uses: actions/upload-pages-artifact@v5
