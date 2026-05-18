@@ -5,11 +5,8 @@ on:
     branches: [ "main" ]
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
     steps:
       - uses: actions/checkout@v6
         with:
@@ -26,14 +23,22 @@ jobs:
       - name: Deploy GitHub Pages
         run: |
           mdbook build
-          git worktree add gh-pages
-          git config user.name "Deploy from CI"
-          git config user.email ""
+          mkdir gh-pages
           cd gh-pages
-          # Delete the ref to avoid keeping history.
-          git update-ref -d refs/heads/gh-pages
-          rm -rf *
           mv ../book/* .
-          git add .
-          git commit -m "Deploy $GITHUB_SHA to gh-pages"
-          git push --force --set-upstream origin gh-pages
+      - name: Upload static files as artifact
+        id: deployment
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: gh-pages/
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
