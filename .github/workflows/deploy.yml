@@ -8,12 +8,18 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v6
     - name: Install mdbook
       run: |
-        mkdir mdbook
-        curl -sSL https://github.com/rust-lang/mdBook/releases/download/v0.4.21/mdbook-v0.4.21-x86_64-unknown-linux-gnu.tar.gz | tar -xz --directory=./mdbook
-        echo `pwd`/mdbook >> $GITHUB_PATH
+      - name: Install mdbook
+        uses: taiki-e/install-action@v2
+        with:
+          tool: mdbook
+      - name: Install mdbook-linkcheck2
+        uses: taiki-e/install-action@v2
+        with:
+          tool: mdbook-linkcheck2
+          fallback: cargo-install
     - name: Deploy GitHub Pages
       run: |
         mdbook build
