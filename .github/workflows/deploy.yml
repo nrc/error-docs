@@ -20,17 +20,13 @@ jobs:
         with:
           tool: mdbook-linkcheck2
           fallback: cargo-install
-      - name: Deploy GitHub Pages
-        run: |
-          mdbook build
-          mkdir gh-pages
-          cd gh-pages
-          mv ../book error-docs
+      - name: Build
+        run: mdbook build
       - name: Upload static files as artifact
         id: deployment
         uses: actions/upload-pages-artifact@v5
         with:
-          path: gh-pages/
+          path: book/
   deploy:
     needs: build
     runs-on: ubuntu-latest
