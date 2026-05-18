@@ -25,7 +25,6 @@ jobs:
           fallback: cargo-install
       - name: Deploy GitHub Pages
         run: |
-          rm -rf *
           mdbook build
           git worktree add gh-pages
           git config user.name "Deploy from CI"
