@@ -22,11 +22,13 @@ jobs:
           fallback: cargo-install
       - name: Build
         run: mdbook build
+      - name: Remove copied git artifacts
+        run: rm -rf book/.git book/.github
       - name: Upload static files as artifact
         id: deployment
         uses: actions/upload-pages-artifact@v5
         with:
-          path: book/
+          path: book/html
   deploy:
     needs: build
     runs-on: ubuntu-latest
