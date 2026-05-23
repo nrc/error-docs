@@ -1,6 +1,6 @@
 # nrc's error docs
 
-NOTE: I have recently this project. A lot of it is a bit out of date, needs significant editing, or I've changed my mind on (especially the second half). Please don't pay too much attention for now.
+NOTE: I have recently resurrected this project and I'm working through it to polish and update it. A lot of it is a bit out of date, needs significant editing, or I've changed my mind on (especially the second half). Please don't pay too much attention for now.
 
 Read the [rendered book](https://nrc.github.io/error-docs).
 
@@ -19,11 +19,3 @@ Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for more info.
 If you notice an error (heh) or think something could be improved, please open an [issue](https://github.com/nrc/error-docs/issues/new) or PR.
 
 These docs are licensed under CC-BY-4.0.
-
-## TODO
-
-- CI
-- edit and update all the sections!
-- more on `dyn Error` style errors
-- what to do with Display
-- Why source/nested errors and backtraces are IMO bad
