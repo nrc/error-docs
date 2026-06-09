@@ -11,7 +11,7 @@ A basic Rust unit test fails if the function panics and passes if it does not. S
 
 Another useful tool is the `#[should_panic]` attribute on tests. This makes a test pass if it panics and fails if it doesn't. However, you won't know what caused the panic - it could be part of the program which shouldn't have panicked. You can use an `expected` parameter to test for a particular message when panicking, e.g., `#[should_panic(expected = "internal compiler error")]`[^rstest]. But testing the `Result`s directly gives you even more precision, so is a better strategy than `unwrap`ing if you are starting with `Result`.
 
-There are various methods on `Result` that are useful in tests. You can use `is_err` or `is_ok` with the `assert` macro to test success/failure, or `is_err_and` to assert something about the error. `inspect_err` and `unwrap_err` (and `unwrap` of course) are sometimes useful. Simply `match`ing on a `Result`, or using the `assert_matches` (nightly only for now, but expected to stabilize soon) or `matches` macros is a powerful but sometimes verbose approach. One advantage of matching the `Result` or `Error` is that you can assert a particular error variant is present without testing its payload values.
+There are various methods on `Result` that are useful in tests. You can use `is_err` or `is_ok` with the `assert` macro to test success/failure, or `is_err_and` to assert something about the error. `inspect_err` and `unwrap_err` (and `unwrap` of course) are sometimes useful. Simply `match`ing on a `Result`, or using the `assert_matches` or `matches` macros is a powerful but sometimes verbose approach. One advantage of matching the `Result` or `Error` is that you can assert a particular error variant is present without testing its payload values.
 
 For example,
 
@@ -81,7 +81,7 @@ mod test {
     fn process_err() -> Result<(), MyError> {
         // Note that we test the specific error returned but not the contents of
         // that error. This should match the guarantees/expectations of `process_something`.
-        assert!(matches!(process_something(AlwaysErr), Err(MyError::ProcessError(_))));
+        assert_matches!(process_something(AlwaysErr), Err(MyError::ProcessError(_)));
         Ok(())
     }
 }

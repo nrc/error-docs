@@ -8,6 +8,7 @@
   - [Non-Rust errors and FFI](rust-errors/interop.md)
   - [Testing](rust-errors/testing.md)
 - [Rust's ecosystem](ecosystem.md)
+- [Error recovery](recovery.md)
 - [Error design](error-design/README.md)
   - [Thinking about errors](error-design/thinking-about-errors.md)
   - [Error handling](error-design/error-handling.md)
