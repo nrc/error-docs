@@ -6,6 +6,8 @@ Read the [rendered book](https://nrc.github.io/error-docs).
 
 To read, start at the [introduction](intro.md) or see the contents in [SUMMARY.md](SUMMARY.md).
 
+Authored by [Nicholas Cameron](https://www.ncameron.org/)[^availability] (@nrc).
+
 ## Building
 
 You'll need to install [mdbook](https://rust-lang.github.io/mdBook/), the easiest way is `cargo install mdbook`.
@@ -19,3 +21,6 @@ Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for more info.
 If you notice an error (heh) or think something could be improved, please open an [issue](https://github.com/nrc/error-docs/issues/new) or PR.
 
 These docs are licensed under CC-BY-4.0.
+
+
+[^availability]: I offer [consulting](https://www.ncameron.org/coaching/) on adopting and learning Rust. I may have availability get in touch via [email](nrc@ncameron.org).
